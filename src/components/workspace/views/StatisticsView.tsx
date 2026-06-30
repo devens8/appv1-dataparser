@@ -7,7 +7,7 @@ import { columnValues, numericColumns } from "@/lib/dataset";
 import { descriptiveStats } from "@/lib/stats";
 import { methodLabels } from "@/lib/outliers";
 import { fmt, fmtInt } from "@/lib/format";
-import { Panel, StatGrid } from "@/components/ui";
+import { Panel } from "@/components/ui";
 import { NoNumeric } from "@/components/workspace/tools/shared";
 import { useSessionStore } from "@/store/session";
 import {
@@ -20,8 +20,8 @@ import { IconDownload } from "@/components/icons";
 const DIRECTION: Record<string, { text: string; tone: string }> = {
   increasing: { text: "▲ Increasing", tone: "text-emerald-300" },
   decreasing: { text: "▼ Decreasing", tone: "text-rose-300" },
-  stable: { text: "→ Stable", tone: "text-slate-300" },
-  insufficient: { text: "Insufficient", tone: "text-slate-500" },
+  stable: { text: "→ Stable", tone: "text-zinc-300" },
+  insufficient: { text: "Insufficient", tone: "text-zinc-500" },
 };
 
 export default function StatisticsView({
@@ -148,24 +148,44 @@ export default function StatisticsView({
     downloadCSV(`${dataset.name}-statistics.csv`, rows);
   };
 
+  const descriptive: { label: string; value: string; accent?: string }[] = [
+    { label: "N", value: stats ? fmtInt(stats.count) : "—" },
+    { label: "Mean", value: fmt(stats?.mean), accent: "text-orange-300" },
+    { label: "Median", value: fmt(stats?.median) },
+    { label: "Std Dev", value: fmt(stats?.std) },
+    { label: "Std Error", value: fmt(stats?.sem) },
+    { label: "Variance", value: fmt(stats?.variance) },
+    { label: "Min", value: fmt(stats?.min) },
+    { label: "Max", value: fmt(stats?.max) },
+    { label: "Range", value: fmt(stats?.range) },
+    { label: "Q1 (25%)", value: fmt(stats?.q1) },
+    { label: "Q3 (75%)", value: fmt(stats?.q3) },
+    { label: "IQR", value: fmt(stats?.iqr) },
+    { label: "Skewness", value: fmt(stats?.skewness) },
+    { label: "Kurtosis", value: fmt(stats?.kurtosis) },
+    { label: "CV", value: stats ? `${fmt(stats.cv, 1)}%` : "—" },
+    { label: "Sum", value: fmt(stats?.sum) },
+  ];
+
   return (
-    <div className="animate-fade-in space-y-4">
+    <div className="animate-fade-in grid h-full min-h-0 grid-rows-[auto_1fr] gap-3">
+      {/* Descriptive statistics — a dense, full-width spec sheet */}
       <Panel
-        title="Descriptive statistics"
-        subtitle={`Summary measures for ${yCol?.name ?? "the selected variable"}`}
+        title={`Descriptive statistics · ${yCol?.name ?? "variable"}`}
+        subtitle="All summary measures at a glance"
         actions={
           canExport && (
             <div className="flex items-center gap-2">
               <button
                 onClick={exportReport}
-                className="flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-900/60 px-3 py-1.5 text-xs font-medium text-slate-200 transition-colors hover:border-sky-500/50 hover:text-sky-200"
+                className="flex items-center gap-1.5 rounded-sm border border-zinc-700 bg-zinc-900/60 px-2.5 py-1 text-[11px] font-medium text-zinc-200 transition-colors hover:border-orange-500/50 hover:text-orange-200"
               >
                 <IconDownload className="h-3.5 w-3.5" width={14} height={14} />
-                Publication report
+                Report
               </button>
               <button
                 onClick={exportCSV}
-                className="flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-900/60 px-3 py-1.5 text-xs font-medium text-slate-200 transition-colors hover:border-sky-500/50 hover:text-sky-200"
+                className="flex items-center gap-1.5 rounded-sm border border-zinc-700 bg-zinc-900/60 px-2.5 py-1 text-[11px] font-medium text-zinc-200 transition-colors hover:border-orange-500/50 hover:text-orange-200"
               >
                 <IconDownload className="h-3.5 w-3.5" width={14} height={14} />
                 CSV
@@ -174,211 +194,181 @@ export default function StatisticsView({
           )
         }
       >
-        <StatGrid
-          cols="grid-cols-2 sm:grid-cols-4 lg:grid-cols-6"
-          items={[
-            { label: "N", value: stats ? fmtInt(stats.count) : "—" },
-            {
-              label: "Mean",
-              value: fmt(stats?.mean),
-              accent: "text-sky-300",
-            },
-            { label: "Median", value: fmt(stats?.median) },
-            { label: "Std Dev", value: fmt(stats?.std) },
-            { label: "Std Error", value: fmt(stats?.sem) },
-            { label: "Variance", value: fmt(stats?.variance) },
-            { label: "Min", value: fmt(stats?.min) },
-            { label: "Max", value: fmt(stats?.max) },
-            { label: "Range", value: fmt(stats?.range) },
-            { label: "Q1 (25%)", value: fmt(stats?.q1) },
-            { label: "Q3 (75%)", value: fmt(stats?.q3) },
-            { label: "IQR", value: fmt(stats?.iqr) },
-            { label: "Skewness", value: fmt(stats?.skewness) },
-            {
-              label: "Kurtosis",
-              value: fmt(stats?.kurtosis),
-              hint: "excess",
-            },
-            {
-              label: "CV",
-              value: stats ? `${fmt(stats.cv, 1)}%` : "—",
-            },
-            { label: "Sum", value: fmt(stats?.sum) },
-          ]}
-        />
-      </Panel>
-
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Panel
-          title="Trend"
-          subtitle="Linear regression & monotonic trend"
-        >
-          <StatGrid
-            cols="grid-cols-3"
-            items={[
-              {
-                label: "Direction",
-                value: <span className={dir.tone}>{dir.text}</span>,
-              },
-              {
-                label: "R²",
-                value: fmt(trend.fit?.r2),
-                accent: "text-sky-300",
-                hint: trend.strength,
-              },
-              {
-                label: "M–K τ",
-                value: fmt(trend.mannKendallTau, 2),
-              },
-              {
-                label: "Slope",
-                value: fmt(trend.fit?.slope),
-                hint: "per unit x",
-              },
-              {
-                label: "% / step",
-                value: fmt(trend.percentChangePerStep, 2),
-              },
-              { label: "Total Δ", value: fmt(trend.totalChange) },
-            ]}
-          />
-        </Panel>
-
-        <Panel
-          title="Outliers"
-          subtitle={methodLabels[outliers.method]}
-        >
-          <StatGrid
-            cols="grid-cols-3"
-            items={[
-              {
-                label: "Flagged",
-                value: fmtInt(outliers.count),
-                accent: "text-rose-300",
-                hint: `${fmt(pct, 1)}% of data`,
-              },
-              { label: "Lower", value: fmt(outliers.lowerBound) },
-              { label: "Upper", value: fmt(outliers.upperBound) },
-              {
-                label: "Threshold",
-                value: fmt(outliers.threshold, 2),
-                hint: outliers.method === "iqr" ? "× IQR" : "score",
-              },
-              { label: "Min", value: fmt(stats?.min) },
-              { label: "Max", value: fmt(stats?.max) },
-            ]}
-          />
-        </Panel>
-      </div>
-
-      <Panel
-        title="Per-column summary"
-        subtitle="Descriptive statistics for every numeric column"
-      >
-        <div className="overflow-auto">
-          <table className="w-full text-sm">
-            <thead className="text-left text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-              <tr className="border-b border-slate-800">
-                <th className="px-5 py-2.5">Column</th>
-                <th className="px-5 py-2.5 text-right">N</th>
-                <th className="px-5 py-2.5 text-right">Mean</th>
-                <th className="px-5 py-2.5 text-right">Std</th>
-                <th className="px-5 py-2.5 text-right">Min</th>
-                <th className="px-5 py-2.5 text-right">Median</th>
-                <th className="px-5 py-2.5 text-right">Max</th>
-              </tr>
-            </thead>
-            <tbody>
-              {perColumn.map(({ column, stats: s }) => {
-                const active = column.index === yCol?.index;
-                return (
-                  <tr
-                    key={column.index}
-                    className={`border-t border-slate-800/60 ${
-                      active ? "bg-sky-500/[0.06]" : "hover:bg-slate-800/30"
-                    }`}
-                  >
-                    <td className="px-5 py-2 font-medium text-slate-200">
-                      {column.name}
-                      {active && (
-                        <span className="ml-2 text-[10px] font-semibold uppercase text-sky-400">
-                          active
-                        </span>
-                      )}
-                    </td>
-                    <td className="tabular px-5 py-2 text-right text-slate-400">
-                      {s ? fmtInt(s.count) : "—"}
-                    </td>
-                    <td className="tabular px-5 py-2 text-right text-slate-200">
-                      {fmt(s?.mean)}
-                    </td>
-                    <td className="tabular px-5 py-2 text-right text-slate-400">
-                      {fmt(s?.std)}
-                    </td>
-                    <td className="tabular px-5 py-2 text-right text-slate-400">
-                      {fmt(s?.min)}
-                    </td>
-                    <td className="tabular px-5 py-2 text-right text-slate-400">
-                      {fmt(s?.median)}
-                    </td>
-                    <td className="tabular px-5 py-2 text-right text-slate-400">
-                      {fmt(s?.max)}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+        <div className="grid grid-cols-4 divide-x divide-y divide-zinc-800/60 border-t border-zinc-800/60 sm:grid-cols-8">
+          {descriptive.map((it) => (
+            <div key={it.label} className="px-3 py-1.5">
+              <div className="text-[9px] font-semibold uppercase tracking-wider text-zinc-500">
+                {it.label}
+              </div>
+              <div
+                className={`tabular mt-0.5 text-sm font-semibold leading-none ${
+                  it.accent ?? "text-zinc-100"
+                }`}
+              >
+                {it.value}
+              </div>
+            </div>
+          ))}
         </div>
       </Panel>
 
-      {outliers.count > 0 && (
+      {/* Lower region fills the rest: trend + outliers | per-column sheet */}
+      <div className="grid min-h-0 grid-cols-1 gap-3 lg:grid-cols-12">
+        <div className="grid min-h-0 grid-rows-2 gap-3 lg:col-span-5">
+          <Panel fill title="Trend" subtitle="Linear regression & monotonic trend">
+            <KVList
+              rows={[
+                ["Direction", <span key="d" className={dir.tone}>{dir.text}</span>],
+                ["R² (strength)", `${fmt(trend.fit?.r2)} · ${trend.strength}`],
+                ["Slope (per x)", fmt(trend.fit?.slope)],
+                ["% change / step", fmt(trend.percentChangePerStep, 2)],
+                ["Mann–Kendall τ", fmt(trend.mannKendallTau, 2)],
+                ["Total Δ", fmt(trend.totalChange)],
+              ]}
+            />
+          </Panel>
+
+          <Panel
+            fill
+            title="Outliers"
+            subtitle={`${methodLabels[outliers.method]} · ${fmtInt(
+              outliers.count,
+            )} flagged (${fmt(pct, 1)}%)`}
+            bodyClassName="flex flex-col"
+          >
+            <KVList
+              rows={[
+                ["Lower bound", fmt(outliers.lowerBound)],
+                ["Upper bound", fmt(outliers.upperBound)],
+                [
+                  "Threshold",
+                  `${fmt(outliers.threshold, 2)} ${
+                    outliers.method === "iqr" ? "× IQR" : "score"
+                  }`,
+                ],
+              ]}
+            />
+            {outliers.count > 0 && (
+              <div className="min-h-0 flex-1 overflow-auto border-t border-zinc-800/60">
+                <table className="w-full text-[11px]">
+                  <thead className="sticky top-0 bg-zinc-950/95 text-left uppercase tracking-wide text-zinc-500 backdrop-blur">
+                    <tr>
+                      <th className="px-3 py-1 font-semibold">#</th>
+                      <th className="px-3 py-1 text-right font-semibold">Value</th>
+                      <th className="px-3 py-1 text-right font-semibold">Score</th>
+                      <th className="px-3 py-1 font-semibold">Dir</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {outliers.indices.map((i) => (
+                      <tr key={i} className="border-t border-zinc-800/50">
+                        <td className="tabular px-3 py-0.5 text-zinc-500">{i + 1}</td>
+                        <td className="tabular px-3 py-0.5 text-right font-medium text-zinc-200">
+                          {fmt(y[i])}
+                        </td>
+                        <td className="tabular px-3 py-0.5 text-right text-zinc-400">
+                          {fmt(outliers.scores[i], 2)}
+                        </td>
+                        <td className="px-3 py-0.5">
+                          <span
+                            className={
+                              y[i] > outliers.upperBound
+                                ? "text-red-300"
+                                : "text-amber-300"
+                            }
+                          >
+                            {y[i] > outliers.upperBound ? "▲" : "▼"}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Panel>
+        </div>
+
         <Panel
-          title="Flagged values"
-          subtitle={`${outliers.count} point${
-            outliers.count === 1 ? "" : "s"
-          } outside the ${methodLabels[outliers.method]} bounds`}
+          fill
+          className="lg:col-span-7"
+          title="Per-column summary"
+          subtitle="Descriptive statistics for every numeric column"
         >
-          <div className="max-h-72 overflow-auto">
-            <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-slate-900/95 backdrop-blur">
-                <tr className="text-left text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                  <th className="px-5 py-2">Point</th>
-                  <th className="px-5 py-2 text-right">Value</th>
-                  <th className="px-5 py-2 text-right">Score</th>
-                  <th className="px-5 py-2">Direction</th>
+          <div className="h-full overflow-auto">
+            <table className="w-full text-[12px]">
+              <thead className="sticky top-0 bg-zinc-950/95 text-left text-[10px] font-semibold uppercase tracking-wide text-zinc-500 backdrop-blur">
+                <tr className="border-b border-zinc-800">
+                  <th className="px-4 py-2">Column</th>
+                  <th className="px-4 py-2 text-right">N</th>
+                  <th className="px-4 py-2 text-right">Mean</th>
+                  <th className="px-4 py-2 text-right">Std</th>
+                  <th className="px-4 py-2 text-right">Min</th>
+                  <th className="px-4 py-2 text-right">Median</th>
+                  <th className="px-4 py-2 text-right">Max</th>
                 </tr>
               </thead>
               <tbody>
-                {outliers.indices.map((i) => (
-                  <tr key={i} className="border-t border-slate-800/60">
-                    <td className="tabular px-5 py-1.5 text-slate-500">
-                      {i + 1}
-                    </td>
-                    <td className="tabular px-5 py-1.5 text-right font-medium text-slate-200">
-                      {fmt(y[i])}
-                    </td>
-                    <td className="tabular px-5 py-1.5 text-right text-slate-400">
-                      {fmt(outliers.scores[i], 2)}
-                    </td>
-                    <td className="px-5 py-1.5">
-                      <span
-                        className={
-                          y[i] > outliers.upperBound
-                            ? "text-rose-300"
-                            : "text-amber-300"
-                        }
-                      >
-                        {y[i] > outliers.upperBound ? "▲ High" : "▼ Low"}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
+                {perColumn.map(({ column, stats: s }) => {
+                  const active = column.index === yCol?.index;
+                  return (
+                    <tr
+                      key={column.index}
+                      className={`border-t border-zinc-800/60 ${
+                        active ? "bg-orange-500/[0.06]" : "hover:bg-zinc-800/30"
+                      }`}
+                    >
+                      <td className="px-4 py-1.5 font-medium text-zinc-200">
+                        {column.name}
+                        {active && (
+                          <span className="ml-2 text-[9px] font-semibold uppercase text-orange-400">
+                            active
+                          </span>
+                        )}
+                      </td>
+                      <td className="tabular px-4 py-1.5 text-right text-zinc-400">
+                        {s ? fmtInt(s.count) : "—"}
+                      </td>
+                      <td className="tabular px-4 py-1.5 text-right text-zinc-200">
+                        {fmt(s?.mean)}
+                      </td>
+                      <td className="tabular px-4 py-1.5 text-right text-zinc-400">
+                        {fmt(s?.std)}
+                      </td>
+                      <td className="tabular px-4 py-1.5 text-right text-zinc-400">
+                        {fmt(s?.min)}
+                      </td>
+                      <td className="tabular px-4 py-1.5 text-right text-zinc-400">
+                        {fmt(s?.median)}
+                      </td>
+                      <td className="tabular px-4 py-1.5 text-right text-zinc-400">
+                        {fmt(s?.max)}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         </Panel>
-      )}
+      </div>
+    </div>
+  );
+}
+
+/** Compact key→value sheet rows (label left, value right). */
+function KVList({ rows }: { rows: [string, React.ReactNode][] }) {
+  return (
+    <div className="divide-y divide-zinc-800/60">
+      {rows.map(([k, v], i) => (
+        <div
+          key={i}
+          className="flex items-center justify-between px-3.5 py-[5px] text-[12px]"
+        >
+          <span className="text-zinc-500">{k}</span>
+          <span className="tabular font-medium text-zinc-100">{v}</span>
+        </div>
+      ))}
     </div>
   );
 }

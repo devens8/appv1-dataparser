@@ -3,21 +3,25 @@
 import { useEffect, useRef } from "react";
 import * as echarts from "echarts";
 
-/** Brightened palette tuned for a dark scientific canvas. */
+/**
+ * Orange-led palette for a black scientific canvas. The accent (index 0) is the
+ * product orange; the rest stay warm but distinguishable, with two cooler hues
+ * at the end so multi-series plots remain readable.
+ */
 export const CHART_PALETTE = [
-  "#38bdf8", // sky
-  "#818cf8", // indigo
-  "#34d399", // emerald
+  "#f97316", // orange (primary accent)
   "#fbbf24", // amber
-  "#f87171", // rose
-  "#a78bfa", // violet
-  "#2dd4bf", // teal
-  "#f472b6", // fuchsia
+  "#fb923c", // light orange
+  "#f43f5e", // warm red
+  "#fde047", // yellow
+  "#fca5a5", // soft red
+  "#22d3ee", // cyan (contrast)
+  "#a3e635", // lime (contrast)
 ];
 
-export const CHART_TEXT = "#94a3b8";
-export const CHART_GRID = "#1e293b";
-export const CHART_AXIS = "#334155";
+export const CHART_TEXT = "#a1a1aa";
+export const CHART_GRID = "#27272a";
+export const CHART_AXIS = "#3f3f46";
 
 /** Common scientific styling merged into every chart option (dark theme). */
 export function baseChartTheme(): echarts.EChartsOption {
@@ -31,12 +35,12 @@ export function baseChartTheme(): echarts.EChartsOption {
     grid: { left: 56, right: 24, top: 36, bottom: 48, containLabel: true },
     tooltip: {
       trigger: "item",
-      backgroundColor: "rgba(12,19,34,0.96)",
-      borderColor: CHART_GRID,
+      backgroundColor: "rgba(10,10,12,0.97)",
+      borderColor: "#f97316",
       borderWidth: 1,
-      textStyle: { color: "#e2e8f0", fontSize: 12 },
+      textStyle: { color: "#e4e4e7", fontSize: 12 },
       extraCssText:
-        "box-shadow: 0 12px 40px rgba(0,0,0,0.55); border-radius:10px; backdrop-filter: blur(6px);",
+        "box-shadow: 0 12px 40px rgba(0,0,0,0.6); border-radius:3px;",
     },
     toolbox: {
       right: 12,
@@ -46,13 +50,13 @@ export function baseChartTheme(): echarts.EChartsOption {
           title: "Export PNG",
           pixelRatio: 3,
           name: "strata-chart",
-          backgroundColor: "#0c1322",
+          backgroundColor: "#0a0a0a",
         },
         dataZoom: { title: { zoom: "Zoom", back: "Reset zoom" } },
         restore: { title: "Restore" },
       },
       iconStyle: { borderColor: CHART_AXIS },
-      emphasis: { iconStyle: { borderColor: "#38bdf8" } },
+      emphasis: { iconStyle: { borderColor: "#f97316" } },
     },
   };
 }

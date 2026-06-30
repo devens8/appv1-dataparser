@@ -40,11 +40,11 @@ export default function DataView({
   );
 
   return (
-    <div className="surface glow animate-fade-in overflow-hidden rounded-xl">
-      <div className="flex items-center justify-between border-b border-slate-800/80 px-4 py-2.5">
-        <div className="flex items-center gap-2 text-xs text-slate-400">
-          <span className="font-semibold text-slate-200">{dataset.name}</span>
-          <span className="text-slate-600">·</span>
+    <div className="surface glow animate-fade-in overflow-hidden rounded-sm">
+      <div className="flex items-center justify-between border-b border-zinc-800/80 px-4 py-2.5">
+        <div className="flex items-center gap-2 text-xs text-zinc-400">
+          <span className="font-semibold text-zinc-200">{dataset.name}</span>
+          <span className="text-zinc-600">·</span>
           <span className="tabular">
             {dataset.rows.length.toLocaleString()} rows ×{" "}
             {dataset.columns.length} cols
@@ -53,7 +53,7 @@ export default function DataView({
         {dataset.rows.length > 100 && (
           <button
             onClick={() => setShowAll((s) => !s)}
-            className="text-xs font-medium text-sky-400 hover:text-sky-300"
+            className="text-xs font-medium text-orange-400 hover:text-orange-300"
           >
             {showAll ? "Show first 100" : `Show all ${dataset.rows.length}`}
           </button>
@@ -64,15 +64,15 @@ export default function DataView({
         <table className="w-full border-separate border-spacing-0 text-sm">
           <thead className="sticky top-0 z-20">
             {/* Spreadsheet letter row */}
-            <tr className="bg-slate-950/95 backdrop-blur">
-              <th className="sticky left-0 z-30 w-12 border-b border-r border-slate-800 bg-slate-950/95 px-2 py-1 text-[10px] font-medium text-slate-600" />
+            <tr className="bg-zinc-950/95 backdrop-blur">
+              <th className="sticky left-0 z-30 w-12 border-b border-r border-zinc-800 bg-zinc-950/95 px-2 py-1 text-[10px] font-medium text-zinc-600" />
               {dataset.columns.map((c) => (
                 <th
                   key={`l-${c.index}`}
-                  className={`border-b border-r border-slate-800 px-3 py-1 text-center text-[10px] font-medium ${
+                  className={`border-b border-r border-zinc-800 px-3 py-1 text-center text-[10px] font-medium ${
                     activeCols.has(c.index)
-                      ? "bg-sky-500/10 text-sky-400"
-                      : "text-slate-600"
+                      ? "bg-orange-500/10 text-orange-400"
+                      : "text-zinc-600"
                   }`}
                 >
                   {colRef(c.index)}
@@ -80,19 +80,19 @@ export default function DataView({
               ))}
             </tr>
             {/* Column names + types */}
-            <tr className="bg-slate-900/95 backdrop-blur">
-              <th className="sticky left-0 z-30 border-b border-r border-slate-800 bg-slate-900/95 px-2 py-2 text-[11px] font-semibold text-slate-600">
+            <tr className="bg-zinc-900/95 backdrop-blur">
+              <th className="sticky left-0 z-30 border-b border-r border-zinc-800 bg-zinc-900/95 px-2 py-2 text-[11px] font-semibold text-zinc-600">
                 #
               </th>
               {dataset.columns.map((c) => (
                 <th
                   key={c.index}
-                  className={`whitespace-nowrap border-b border-r border-slate-800 px-3 py-2 text-left ${
-                    activeCols.has(c.index) ? "bg-sky-500/[0.07]" : ""
+                  className={`whitespace-nowrap border-b border-r border-zinc-800 px-3 py-2 text-left ${
+                    activeCols.has(c.index) ? "bg-orange-500/[0.07]" : ""
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-slate-200">
+                    <span className="font-semibold text-zinc-200">
                       {c.name}
                     </span>
                     <Badge tone={typeTone[c.type]}>{c.type}</Badge>
@@ -104,22 +104,22 @@ export default function DataView({
           <tbody>
             {visible.map((row, ri) => (
               <tr key={ri} className="group">
-                <td className="sticky left-0 z-10 border-b border-r border-slate-800/70 bg-slate-950/80 px-2 py-1.5 text-right text-[11px] tabular text-slate-600 group-hover:text-slate-400">
+                <td className="sticky left-0 z-10 border-b border-r border-zinc-800/70 bg-zinc-950/80 px-2 py-1.5 text-right text-[11px] tabular text-zinc-600 group-hover:text-zinc-400">
                   {ri + 1}
                 </td>
                 {dataset.columns.map((c) => (
                   <td
                     key={c.index}
-                    className={`tabular border-b border-r border-slate-800/50 px-3 py-1.5 group-hover:bg-slate-800/30 ${
-                      activeCols.has(c.index) ? "bg-sky-500/[0.04]" : ""
+                    className={`tabular border-b border-r border-zinc-800/50 px-3 py-1.5 group-hover:bg-zinc-800/30 ${
+                      activeCols.has(c.index) ? "bg-orange-500/[0.04]" : ""
                     } ${
                       c.type === "number"
-                        ? "text-right text-slate-200"
-                        : "text-slate-300"
+                        ? "text-right text-zinc-200"
+                        : "text-zinc-300"
                     }`}
                   >
                     {row[c.index] == null ? (
-                      <span className="text-slate-700">—</span>
+                      <span className="text-zinc-700">—</span>
                     ) : (
                       String(row[c.index])
                     )}

@@ -11,9 +11,9 @@ import Chart, { CHART_PALETTE } from "@/components/Chart";
 import { Field, Panel, Segmented, Select } from "@/components/ui";
 import { NoNumeric } from "@/components/workspace/tools/shared";
 
-const AX_LABEL = { color: "#94a3b8", fontSize: 11 };
-const AX_LINE = { lineStyle: { color: "#334155" } };
-const SPLIT = { lineStyle: { color: "#1e293b" } };
+const AX_LABEL = { color: "#a1a1aa", fontSize: 11 };
+const AX_LINE = { lineStyle: { color: "#3f3f46" } };
+const SPLIT = { lineStyle: { color: "#27272a" } };
 
 type MainType = "scatter" | "line";
 type FitType = "none" | "linear" | "poly2" | "poly3";
@@ -69,7 +69,7 @@ export default function ChartsView({
         symbolSize: 11,
         itemStyle: {
           color: "#f87171",
-          borderColor: "#0c1322",
+          borderColor: "#0a0a0a",
           borderWidth: 1.5,
           shadowColor: "rgba(248,113,113,0.6)",
           shadowBlur: 10,
@@ -125,8 +125,8 @@ export default function ChartsView({
       tooltip: { trigger: mainType === "line" ? "axis" : "item" },
       legend: {
         top: 4,
-        textStyle: { color: "#94a3b8", fontSize: 11 },
-        inactiveColor: "#475569",
+        textStyle: { color: "#a1a1aa", fontSize: 11 },
+        inactiveColor: "#52525b",
       },
       grid: { left: 56, right: 24, top: 40, bottom: 48, containLabel: true },
       ...(annotation
@@ -151,7 +151,7 @@ export default function ChartsView({
         name: `${xCol?.name ?? "Index"}${useLogX ? " (log)" : ""}`,
         nameLocation: "middle",
         nameGap: 30,
-        nameTextStyle: { color: "#cbd5e1", fontSize: 12 },
+        nameTextStyle: { color: "#d4d4d8", fontSize: 12 },
         splitLine: { show: false },
         axisLabel: AX_LABEL,
         axisLine: AX_LINE,
@@ -160,7 +160,7 @@ export default function ChartsView({
         type: useLogY ? "log" : "value",
         scale: true,
         name: `${yCol?.name ?? ""}${useLogY ? " (log)" : ""}`,
-        nameTextStyle: { color: "#cbd5e1", fontSize: 12 },
+        nameTextStyle: { color: "#d4d4d8", fontSize: 12 },
         splitLine: SPLIT,
         axisLabel: AX_LABEL,
       },
@@ -194,7 +194,7 @@ export default function ChartsView({
       yAxis: {
         type: "value",
         name: "Frequency",
-        nameTextStyle: { color: "#94a3b8" },
+        nameTextStyle: { color: "#a1a1aa" },
         splitLine: SPLIT,
         axisLabel: AX_LABEL,
       },
@@ -232,7 +232,7 @@ export default function ChartsView({
           type: "boxplot",
           data: [[low, stats.q1, stats.median, stats.q3, high]],
           itemStyle: {
-            color: "rgba(56,189,248,0.18)",
+            color: "rgba(249,115,22,0.18)",
             borderColor: CHART_PALETTE[0],
           },
         },
@@ -266,12 +266,12 @@ export default function ChartsView({
       xAxis: {
         type: "category",
         data: names,
-        axisLabel: { color: "#94a3b8", rotate: 30, fontSize: 10 },
+        axisLabel: { color: "#a1a1aa", rotate: 30, fontSize: 10 },
       },
       yAxis: {
         type: "category",
         data: names,
-        axisLabel: { color: "#94a3b8", fontSize: 10 },
+        axisLabel: { color: "#a1a1aa", fontSize: 10 },
       },
       visualMap: {
         min: -1,
@@ -280,8 +280,8 @@ export default function ChartsView({
         orient: "horizontal",
         left: "center",
         bottom: 0,
-        inRange: { color: ["#f87171", "#0c1322", "#38bdf8"] },
-        textStyle: { color: "#94a3b8" },
+        inRange: { color: ["#f87171", "#0a0a0a", "#f97316"] },
+        textStyle: { color: "#a1a1aa" },
       },
       series: [
         {
@@ -289,10 +289,10 @@ export default function ChartsView({
           data,
           label: {
             show: numCols.length <= 8,
-            color: "#e2e8f0",
+            color: "#e4e4e7",
             fontSize: 10,
           },
-          itemStyle: { borderColor: "#0c1322", borderWidth: 1 },
+          itemStyle: { borderColor: "#0a0a0a", borderWidth: 1 },
         },
       ],
     } as EChartsOption;
@@ -301,79 +301,81 @@ export default function ChartsView({
   if (numericColumns(dataset).length === 0) return <NoNumeric />;
 
   return (
-    <div className="animate-fade-in space-y-4">
-      <Panel
-        title={`${yCol?.name ?? "Y"} vs ${xCol?.name ?? "Index"}`}
-        subtitle="Regression, curve fit and flagged outliers"
-        actions={
-          <div className="flex flex-wrap items-end gap-3">
-            <Segmented
-              value={mainType}
-              onChange={setMainType}
-              options={[
-                { value: "scatter", label: "Scatter" },
-                { value: "line", label: "Line" },
-              ]}
-            />
-            <Field label="Curve fit">
-              <Select value={fit} onChange={(v) => setFit(v as FitType)}>
-                <option value="none">None</option>
-                <option value="linear">Linear</option>
-                <option value="poly2">Polynomial (2)</option>
-                <option value="poly3">Polynomial (3)</option>
-              </Select>
-            </Field>
-            <label className="flex items-center gap-2 pb-1.5 text-xs font-medium text-slate-400">
-              <input
-                type="checkbox"
-                checked={showMA}
-                onChange={(e) => setShowMA(e.target.checked)}
-                className="accent-sky-500"
-              />
-              Moving avg
-            </label>
-            <label
-              className={`flex items-center gap-2 pb-1.5 text-xs font-medium ${
-                canLogX ? "text-slate-400" : "cursor-not-allowed text-slate-600"
-              }`}
-              title={canLogX ? "" : "Log X needs all X values > 0"}
-            >
-              <input
-                type="checkbox"
-                checked={useLogX}
-                disabled={!canLogX}
-                onChange={(e) => setLogX(e.target.checked)}
-                className="accent-sky-500"
-              />
-              Log X
-            </label>
-            <label
-              className={`flex items-center gap-2 pb-1.5 text-xs font-medium ${
-                canLogY ? "text-slate-400" : "cursor-not-allowed text-slate-600"
-              }`}
-              title={canLogY ? "" : "Log Y needs all Y values > 0"}
-            >
-              <input
-                type="checkbox"
-                checked={useLogY}
-                disabled={!canLogY}
-                onChange={(e) => setLogY(e.target.checked)}
-                className="accent-sky-500"
-              />
-              Log Y
-            </label>
-          </div>
-        }
-      >
-        <div className="p-3">
-          <Chart option={relation} height={420} />
-        </div>
-      </Panel>
-
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+    <div className="animate-fade-in grid h-full min-h-0 grid-rows-[1.35fr_1fr] gap-3">
+      {/* Row 1 — main relationship plot + distribution */}
+      <div className="grid min-h-0 grid-cols-1 gap-3 lg:grid-cols-3">
         <Panel
+          fill
+          className="lg:col-span-2"
+          title={`${yCol?.name ?? "Y"} vs ${xCol?.name ?? "Index"}`}
+          subtitle="Regression, curve fit and flagged outliers"
+          actions={
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <Segmented
+                value={mainType}
+                onChange={setMainType}
+                options={[
+                  { value: "scatter", label: "Scatter" },
+                  { value: "line", label: "Line" },
+                ]}
+              />
+              <Select value={fit} onChange={(v) => setFit(v as FitType)}>
+                <option value="none">No fit</option>
+                <option value="linear">Linear</option>
+                <option value="poly2">Poly (2)</option>
+                <option value="poly3">Poly (3)</option>
+              </Select>
+              <label className="flex items-center gap-1.5 text-[11px] font-medium text-zinc-400">
+                <input
+                  type="checkbox"
+                  checked={showMA}
+                  onChange={(e) => setShowMA(e.target.checked)}
+                  className="accent-orange-500"
+                />
+                MA
+              </label>
+              <label
+                className={`flex items-center gap-1.5 text-[11px] font-medium ${
+                  canLogX ? "text-zinc-400" : "cursor-not-allowed text-zinc-600"
+                }`}
+                title={canLogX ? "" : "Log X needs all X values > 0"}
+              >
+                <input
+                  type="checkbox"
+                  checked={useLogX}
+                  disabled={!canLogX}
+                  onChange={(e) => setLogX(e.target.checked)}
+                  className="accent-orange-500"
+                />
+                logX
+              </label>
+              <label
+                className={`flex items-center gap-1.5 text-[11px] font-medium ${
+                  canLogY ? "text-zinc-400" : "cursor-not-allowed text-zinc-600"
+                }`}
+                title={canLogY ? "" : "Log Y needs all Y values > 0"}
+              >
+                <input
+                  type="checkbox"
+                  checked={useLogY}
+                  disabled={!canLogY}
+                  onChange={(e) => setLogY(e.target.checked)}
+                  className="accent-orange-500"
+                />
+                logY
+              </label>
+            </div>
+          }
+        >
+          <div className="h-full p-2">
+            <Chart option={relation} height="100%" />
+          </div>
+        </Panel>
+
+        <Panel
+          fill
           title="Distribution"
-          subtitle="Histogram of the selected variable"
+          subtitle="Histogram of Y"
           actions={
             <Field label={`Bins · ${bins}`}>
               <input
@@ -382,36 +384,43 @@ export default function ChartsView({
                 max={40}
                 value={bins}
                 onChange={(e) => setBins(Number(e.target.value))}
-                className="w-28 accent-sky-500"
+                className="w-24 accent-orange-500"
               />
             </Field>
           }
         >
-          <div className="p-3">
-            {histogram && <Chart option={histogram} height={300} />}
-          </div>
-        </Panel>
-
-        <Panel title="Box plot" subtitle="Quartiles, whiskers and outliers">
-          <div className="p-3">
-            {boxplot && <Chart option={boxplot} height={300} />}
+          <div className="h-full p-2">
+            {histogram && <Chart option={histogram} height="100%" />}
           </div>
         </Panel>
       </div>
 
-      {heatmap && (
+      {/* Row 2 — box plot + correlation matrix */}
+      <div className="grid min-h-0 grid-cols-1 gap-3 lg:grid-cols-3">
         <Panel
-          title="Correlation matrix"
-          subtitle="Pearson correlation across numeric columns"
+          fill
+          className={heatmap ? "" : "lg:col-span-3"}
+          title="Box plot"
+          subtitle="Quartiles, whiskers & outliers"
         >
-          <div className="p-4">
-            <Chart
-              option={heatmap}
-              height={Math.max(300, numericColumns(dataset).length * 44)}
-            />
+          <div className="h-full p-2">
+            {boxplot && <Chart option={boxplot} height="100%" />}
           </div>
         </Panel>
-      )}
+
+        {heatmap && (
+          <Panel
+            fill
+            className="lg:col-span-2"
+            title="Correlation matrix"
+            subtitle="Pearson r across numeric columns"
+          >
+            <div className="h-full p-2">
+              <Chart option={heatmap} height="100%" />
+            </div>
+          </Panel>
+        )}
+      </div>
     </div>
   );
 }

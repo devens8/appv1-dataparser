@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
@@ -18,6 +18,7 @@ import { accent } from "@/lib/colors";
 import { computeAnalysis, INDEX_X } from "@/lib/analysis";
 import { methodLabels, type OutlierMethod } from "@/lib/outliers";
 import { numericColumns } from "@/lib/dataset";
+import { suggestAxes } from "@/lib/insights";
 import { Field, Select } from "@/components/ui";
 import {
   IconChart,
@@ -70,6 +71,9 @@ const ANALYZE_GROUPS: TabDef["group"][] = [
 /** Tabs that operate on the single active dataset (need the X/Y/method bar). */
 const SINGLE_DATASET_TABS: Tab[] = ["charts", "fit", "stats", "data", "anomaly"];
 
+/** Tabs designed to fit the viewport exactly (no scroll). */
+const FIT_TABS: Tab[] = ["charts", "stats", "fit", "anomaly"];
+
 export default function WorkspacePage() {
   const params = useParams<{ id: string }>();
   const id = params.id;
@@ -97,6 +101,18 @@ export default function WorkspacePage() {
     );
   }, [workspace]);
 
+  // Pre-select the most appropriate X/Y whenever the active dataset changes, so
+  // the first chart you see is already a sensible plot (not row-index vs col 1).
+  const seededFor = useRef<string | null>(null);
+  useEffect(() => {
+    if (activeDataset && seededFor.current !== activeDataset.id) {
+      seededFor.current = activeDataset.id;
+      const s = suggestAxes(activeDataset);
+      setXName(s.xName);
+      setYName(s.yName);
+    }
+  }, [activeDataset]);
+
   const analysis = useMemo(
     () =>
       activeDataset
@@ -110,7 +126,7 @@ export default function WorkspacePage() {
       <Shell>
         <div className="mx-auto max-w-5xl px-8 py-10">
           <div className="skeleton h-8 w-48 rounded" />
-          <div className="skeleton mt-6 h-64 rounded-xl" />
+          <div className="skeleton mt-6 h-64 rounded-sm" />
         </div>
       </Shell>
     );
@@ -120,15 +136,15 @@ export default function WorkspacePage() {
     return (
       <Shell>
         <div className="flex h-full flex-col items-center justify-center text-center">
-          <h2 className="text-lg font-semibold text-slate-100">
+          <h2 className="text-lg font-semibold text-zinc-100">
             Workspace not found
           </h2>
-          <p className="mt-1 text-sm text-slate-400">
+          <p className="mt-1 text-sm text-zinc-400">
             It may have been deleted.
           </p>
           <Link
             href="/"
-            className="mt-4 rounded-lg bg-sky-500/90 px-4 py-2 text-sm font-medium text-white hover:bg-sky-400"
+            className="mt-4 rounded-sm bg-orange-500/90 px-4 py-2 text-sm font-medium text-white hover:bg-orange-400"
           >
             Back to workspaces
           </Link>
@@ -145,13 +161,13 @@ export default function WorkspacePage() {
     <Shell>
       <div className="flex h-full flex-col">
         {/* Header */}
-        <header className="relative border-b border-slate-800/80 bg-slate-950/40 px-6 pt-4">
-          <nav className="flex items-center gap-1.5 text-xs text-slate-500">
-            <Link href="/" className="hover:text-slate-300">
+        <header className="relative border-b border-zinc-800/80 bg-zinc-950/40 px-6 pt-4">
+          <nav className="flex items-center gap-1.5 text-xs text-zinc-500">
+            <Link href="/" className="hover:text-zinc-300">
               Workspaces
             </Link>
             <span>/</span>
-            <span className="text-slate-300">{workspace.name}</span>
+            <span className="text-zinc-300">{workspace.name}</span>
           </nav>
           <div className="mt-1.5 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -159,11 +175,11 @@ export default function WorkspacePage() {
                 className={`h-7 w-1.5 rounded-full ${a.bg} shadow-[0_0_12px_currentColor]`}
               />
               <div>
-                <h1 className="text-lg font-semibold tracking-tight text-slate-50">
+                <h1 className="text-lg font-semibold tracking-tight text-zinc-50">
                   {workspace.name}
                 </h1>
                 {workspace.description && (
-                  <p className="text-sm text-slate-400">
+                  <p className="text-sm text-zinc-400">
                     {workspace.description}
                   </p>
                 )}
@@ -174,7 +190,7 @@ export default function WorkspacePage() {
                 <div className="relative">
                   <button
                     onClick={() => setAnalyzeOpen((o) => !o)}
-                    className="flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-900/70 px-3.5 py-2 text-sm font-medium text-slate-200 transition-colors hover:border-sky-500/60 hover:text-sky-300"
+                    className="flex items-center gap-2 rounded-sm border border-zinc-700 bg-zinc-900/70 px-3.5 py-2 text-sm font-medium text-zinc-200 transition-colors hover:border-orange-500/60 hover:text-orange-300"
                   >
                     <IconMenu className="h-4 w-4" width={16} height={16} />
                     Analyze
@@ -185,13 +201,13 @@ export default function WorkspacePage() {
                         className="fixed inset-0 z-30"
                         onClick={() => setAnalyzeOpen(false)}
                       />
-                      <div className="surface glow absolute right-0 z-40 mt-2 w-72 rounded-xl p-2">
+                      <div className="surface glow absolute right-0 z-40 mt-2 w-72 rounded-sm p-2">
                         {ANALYZE_GROUPS.map((g) => {
                           const items = TABS.filter((t) => t.group === g);
                           if (!items.length) return null;
                           return (
                             <div key={g} className="mb-1.5 last:mb-0">
-                              <div className="px-2 pb-1 pt-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                              <div className="px-2 pb-1 pt-1.5 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
                                 {g}
                               </div>
                               {items.map((t) => (
@@ -201,14 +217,14 @@ export default function WorkspacePage() {
                                     setTab(t.id);
                                     setAnalyzeOpen(false);
                                   }}
-                                  className={`flex w-full items-start gap-2.5 rounded-lg px-2 py-1.5 text-left transition-colors ${
+                                  className={`flex w-full items-start gap-2.5 rounded-sm px-2 py-1.5 text-left transition-colors ${
                                     tab === t.id
-                                      ? "bg-sky-500/10 text-sky-200"
-                                      : "text-slate-300 hover:bg-slate-800/60"
+                                      ? "bg-orange-500/10 text-orange-200"
+                                      : "text-zinc-300 hover:bg-zinc-800/60"
                                   }`}
                                 >
                                   <t.icon
-                                    className="mt-0.5 h-4 w-4 shrink-0 text-slate-400"
+                                    className="mt-0.5 h-4 w-4 shrink-0 text-zinc-400"
                                     width={16}
                                     height={16}
                                   />
@@ -216,7 +232,7 @@ export default function WorkspacePage() {
                                     <span className="block text-sm font-medium">
                                       {t.label}
                                     </span>
-                                    <span className="block text-[11px] leading-tight text-slate-500">
+                                    <span className="block text-[11px] leading-tight text-zinc-500">
                                       {t.blurb}
                                     </span>
                                   </span>
@@ -243,15 +259,15 @@ export default function WorkspacePage() {
                   <div
                     key={d.id}
                     onClick={() => setActiveDataset(workspace.id, d.id)}
-                    className={`group flex shrink-0 cursor-pointer items-center gap-2 rounded-lg border px-3 py-1.5 text-sm transition-colors ${
+                    className={`group flex shrink-0 cursor-pointer items-center gap-2 rounded-sm border px-3 py-1.5 text-sm transition-colors ${
                       isActive
-                        ? "border-sky-500/40 bg-sky-500/10 text-sky-200"
-                        : "border-slate-800 bg-slate-900/50 text-slate-400 hover:border-slate-700 hover:text-slate-200"
+                        ? "border-orange-500/40 bg-orange-500/10 text-orange-200"
+                        : "border-zinc-800 bg-zinc-900/50 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
                     }`}
                   >
                     <IconTable className="h-3.5 w-3.5" width={14} height={14} />
                     <span className="max-w-[160px] truncate">{d.name}</span>
-                    <span className="tabular text-[10px] text-slate-500">
+                    <span className="tabular text-[10px] text-zinc-500">
                       {d.rows.length}×{d.columns.length}
                     </span>
                     {canDelete && (
@@ -261,7 +277,7 @@ export default function WorkspacePage() {
                           if (confirm(`Remove dataset "${d.name}"?`))
                             removeDataset(workspace.id, d.id);
                         }}
-                        className="rounded p-0.5 text-slate-600 opacity-0 hover:bg-rose-500/10 hover:text-rose-400 group-hover:opacity-100"
+                        className="rounded p-0.5 text-zinc-600 opacity-0 hover:bg-rose-500/10 hover:text-rose-400 group-hover:opacity-100"
                       >
                         <IconClose className="h-3 w-3" width={12} height={12} />
                       </button>
@@ -283,8 +299,8 @@ export default function WorkspacePage() {
                     onClick={() => setTab(t.id)}
                     className={`relative flex shrink-0 items-center gap-2 px-3.5 py-2.5 text-sm font-medium transition-colors ${
                       isActive
-                        ? "text-sky-300"
-                        : "text-slate-500 hover:text-slate-300"
+                        ? "text-orange-300"
+                        : "text-zinc-500 hover:text-zinc-300"
                     }`}
                   >
                     <t.icon className="h-4 w-4" width={16} height={16} />
@@ -301,9 +317,9 @@ export default function WorkspacePage() {
 
         {/* Global analysis selector — choose data once, shown everywhere */}
         {activeDataset && hasNumeric && analysis && SINGLE_DATASET_TABS.includes(tab) && (
-          <div className="flex flex-wrap items-end gap-4 border-b border-slate-800/80 bg-slate-900/30 px-6 py-2.5">
-            <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
-              <span className="h-1.5 w-1.5 animate-glow-pulse rounded-full bg-sky-400" />
+          <div className="flex flex-wrap items-end gap-4 border-b border-zinc-800/80 bg-zinc-900/30 px-6 py-2.5">
+            <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+              <span className="h-1.5 w-1.5 animate-glow-pulse rounded-full bg-orange-400" />
               Analyzing
             </div>
             <Field label="X axis">
@@ -340,14 +356,19 @@ export default function WorkspacePage() {
           </div>
         )}
 
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto px-6 py-4">
+        {/* Body — fills the viewport; fit-to-screen views never scroll. */}
+        <div className="min-h-0 flex-1 overflow-hidden px-5 py-3">
           {!activeDataset ? (
-            <div className="py-10">
+            <div className="h-full overflow-y-auto py-10">
               <DataImport workspaceId={workspace.id} />
             </div>
           ) : (
-            <div className="mx-auto max-w-6xl" key={tab}>
+            <div
+              className={`mx-auto h-full w-full max-w-[1700px] ${
+                FIT_TABS.includes(tab) ? "overflow-hidden" : "overflow-y-auto"
+              }`}
+              key={tab}
+            >
               {tab === "charts" && analysis && (
                 <ChartsView dataset={activeDataset} analysis={analysis} />
               )}

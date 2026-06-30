@@ -14,9 +14,9 @@ import { fmt, fmtInt } from "@/lib/format";
 import Chart, { CHART_PALETTE } from "@/components/Chart";
 import { Field, Panel, Select, StatGrid } from "@/components/ui";
 
-const AX_LABEL = { color: "#94a3b8", fontSize: 11 };
-const AX_LINE = { lineStyle: { color: "#334155" } };
-const SPLIT = { lineStyle: { color: "#1e293b" } };
+const AX_LABEL = { color: "#a1a1aa", fontSize: 11 };
+const AX_LINE = { lineStyle: { color: "#3f3f46" } };
+const SPLIT = { lineStyle: { color: "#27272a" } };
 
 function shortDate(ts: number): string {
   return new Date(ts).toLocaleDateString(undefined, {
@@ -88,7 +88,7 @@ export default function LongitudinalView({
       const xIndex = api.value(0) as number;
       const high = api.coord([xIndex, api.value(1) as number]);
       const low = api.coord([xIndex, api.value(2) as number]);
-      const style = { stroke: "#cbd5e1", lineWidth: 1.5 };
+      const style = { stroke: "#d4d4d8", lineWidth: 1.5 };
       const half = 6;
       return {
         type: "group" as const,
@@ -147,8 +147,8 @@ export default function LongitudinalView({
       tooltip: { trigger: "axis" },
       legend: {
         top: 2,
-        textStyle: { color: "#94a3b8", fontSize: 11 },
-        inactiveColor: "#475569",
+        textStyle: { color: "#a1a1aa", fontSize: 11 },
+        inactiveColor: "#52525b",
       },
       grid: { left: 56, right: 24, top: 36, bottom: 60, containLabel: true },
       xAxis: {
@@ -161,7 +161,7 @@ export default function LongitudinalView({
         type: "value",
         scale: true,
         name: `${active} (mean)`,
-        nameTextStyle: { color: "#cbd5e1", fontSize: 12 },
+        nameTextStyle: { color: "#d4d4d8", fontSize: 12 },
         splitLine: SPLIT,
         axisLabel: AX_LABEL,
       },
@@ -171,11 +171,11 @@ export default function LongitudinalView({
 
   if (workspace.datasets.length < 2) {
     return (
-      <div className="grid-bg flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-700 bg-slate-900/30 py-20 text-center">
-        <h3 className="text-sm font-semibold text-slate-200">
+      <div className="grid-bg flex flex-col items-center justify-center rounded-sm border border-dashed border-zinc-700 bg-zinc-900/30 py-20 text-center">
+        <h3 className="text-sm font-semibold text-zinc-200">
           Longitudinal tracking needs a history
         </h3>
-        <p className="mt-1 max-w-sm text-sm text-slate-400">
+        <p className="mt-1 max-w-sm text-sm text-zinc-400">
           Import datasets over time. Each dataset becomes one time point, and
           this view tracks how a variable&apos;s mean shifts across them.
         </p>
@@ -216,7 +216,7 @@ export default function LongitudinalView({
             cols="grid-cols-2 sm:grid-cols-4"
             items={[
               { label: "Start", value: fmt(first) },
-              { label: "Latest", value: fmt(last), accent: "text-sky-300" },
+              { label: "Latest", value: fmt(last), accent: "text-orange-300" },
               {
                 label: "Total Δ",
                 value: fmt(totalChange),
@@ -225,7 +225,7 @@ export default function LongitudinalView({
                     ? "text-emerald-300"
                     : totalChange < 0
                       ? "text-rose-300"
-                      : "text-slate-100",
+                      : "text-zinc-100",
               },
               { label: "% change", value: `${fmt(pctChange, 1)}%` },
               {
@@ -246,8 +246,8 @@ export default function LongitudinalView({
         <Panel title="Time points" subtitle="Per-dataset summary in order">
           <div className="max-h-72 overflow-auto">
             <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-slate-900/95 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-500 backdrop-blur">
-                <tr className="border-b border-slate-800">
+              <thead className="sticky top-0 bg-zinc-900/95 text-left text-[11px] font-semibold uppercase tracking-wide text-zinc-500 backdrop-blur">
+                <tr className="border-b border-zinc-800">
                   <th className="px-5 py-2">#</th>
                   <th className="px-5 py-2">Dataset</th>
                   <th className="px-5 py-2">Added</th>
@@ -260,24 +260,24 @@ export default function LongitudinalView({
                 {points.map((p, i) => (
                   <tr
                     key={p.id}
-                    className="border-t border-slate-800/60 hover:bg-slate-800/30"
+                    className="border-t border-zinc-800/60 hover:bg-zinc-800/30"
                   >
-                    <td className="tabular px-5 py-1.5 text-slate-500">
+                    <td className="tabular px-5 py-1.5 text-zinc-500">
                       {i + 1}
                     </td>
-                    <td className="px-5 py-1.5 font-medium text-slate-200">
+                    <td className="px-5 py-1.5 font-medium text-zinc-200">
                       {p.name}
                     </td>
-                    <td className="px-5 py-1.5 text-slate-400">
+                    <td className="px-5 py-1.5 text-zinc-400">
                       {shortDate(p.createdAt)}
                     </td>
-                    <td className="tabular px-5 py-1.5 text-right text-slate-400">
+                    <td className="tabular px-5 py-1.5 text-right text-zinc-400">
                       {fmtInt(p.count)}
                     </td>
-                    <td className="tabular px-5 py-1.5 text-right font-medium text-sky-300">
+                    <td className="tabular px-5 py-1.5 text-right font-medium text-orange-300">
                       {fmt(p.mean)}
                     </td>
-                    <td className="tabular px-5 py-1.5 text-right text-slate-400">
+                    <td className="tabular px-5 py-1.5 text-right text-zinc-400">
                       {fmt(p.sem)}
                     </td>
                   </tr>

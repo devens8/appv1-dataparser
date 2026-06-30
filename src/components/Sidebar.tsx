@@ -47,16 +47,16 @@ export default function Sidebar() {
     .slice(0, 6);
 
   return (
-    <aside className="relative flex w-64 shrink-0 flex-col border-r border-slate-800/80 bg-slate-950/60">
+    <aside className="relative flex w-64 shrink-0 flex-col border-r border-zinc-800/80 bg-zinc-950/60">
       <div className="flex items-center gap-2.5 px-5 py-4">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-tr from-sky-500 to-indigo-500 text-white shadow-[0_0_18px_-4px_rgba(56,189,248,0.7)]">
+        <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-gradient-to-tr from-orange-500 to-orange-500 text-white shadow-[0_0_18px_-4px_rgba(249,115,22,0.7)]">
           <IconLogo className="h-4.5 w-4.5" width={18} height={18} />
         </div>
         <div className="leading-tight">
-          <div className="text-sm font-semibold tracking-tight text-slate-100">
+          <div className="text-sm font-semibold tracking-tight text-zinc-100">
             Strata
           </div>
-          <div className="text-[10px] font-medium uppercase tracking-wider text-slate-500">
+          <div className="text-[10px] font-medium uppercase tracking-wider text-zinc-500">
             Data Workspace
           </div>
         </div>
@@ -79,13 +79,13 @@ export default function Sidebar() {
         {TOOLS.map((t) => (
           <div
             key={t.label}
-            className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-slate-400"
+            className="flex items-center gap-2.5 rounded-sm px-3 py-2 text-sm text-zinc-400"
           >
-            <t.icon className="h-4 w-4 text-slate-500" width={16} height={16} />
+            <t.icon className="h-4 w-4 text-zinc-500" width={16} height={16} />
             {t.label}
           </div>
         ))}
-        <p className="px-3 pt-1 text-[11px] leading-relaxed text-slate-500">
+        <p className="px-3 pt-1 text-[11px] leading-relaxed text-zinc-500">
           Open a workspace with data to run any tool.
         </p>
 
@@ -93,11 +93,11 @@ export default function Sidebar() {
         {!hydrated ? (
           <div className="space-y-1.5 px-2">
             {[0, 1, 2].map((i) => (
-              <div key={i} className="skeleton h-8 rounded-lg" />
+              <div key={i} className="skeleton h-8 rounded-sm" />
             ))}
           </div>
         ) : recent.length === 0 ? (
-          <p className="px-3 text-[11px] text-slate-500">No workspaces yet.</p>
+          <p className="px-3 text-[11px] text-zinc-500">No workspaces yet.</p>
         ) : (
           recent.map((w) => {
             const a = accent(w.color);
@@ -106,10 +106,10 @@ export default function Sidebar() {
               <Link
                 key={w.id}
                 href={`/workspace/${w.id}`}
-                className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors ${
+                className={`flex items-center gap-2.5 rounded-sm px-3 py-2 text-sm transition-colors ${
                   active
-                    ? "bg-slate-800/70 font-medium text-slate-100"
-                    : "text-slate-400 hover:bg-slate-800/40 hover:text-slate-200"
+                    ? "bg-zinc-800/70 font-medium text-zinc-100"
+                    : "text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-200"
                 }`}
               >
                 <span
@@ -125,13 +125,13 @@ export default function Sidebar() {
         {COMING_SOON.map((t) => (
           <div
             key={t.label}
-            className="flex items-center justify-between rounded-lg px-3 py-2 text-sm text-slate-500"
+            className="flex items-center justify-between rounded-sm px-3 py-2 text-sm text-zinc-500"
           >
             <span className="flex items-center gap-2.5">
               <t.icon className="h-4 w-4" width={16} height={16} />
               {t.label}
             </span>
-            <IconLock className="h-3.5 w-3.5 text-slate-600" width={14} height={14} />
+            <IconLock className="h-3.5 w-3.5 text-zinc-600" width={14} height={14} />
           </div>
         ))}
       </nav>
@@ -143,7 +143,7 @@ export default function Sidebar() {
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="px-3 pb-1 pt-5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+    <div className="px-3 pb-1 pt-5 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
       {children}
     </div>
   );
@@ -163,14 +163,14 @@ function NavLink({
   return (
     <Link
       href={href}
-      className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors ${
+      className={`flex items-center gap-2.5 rounded-sm px-3 py-2 text-sm transition-colors ${
         active
-          ? "bg-sky-500/10 font-medium text-sky-300 ring-1 ring-inset ring-sky-500/20"
-          : "text-slate-400 hover:bg-slate-800/40 hover:text-slate-200"
+          ? "bg-orange-500/10 font-medium text-orange-300 ring-1 ring-inset ring-orange-500/20"
+          : "text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-200"
       }`}
     >
       <Icon
-        className={`h-4 w-4 ${active ? "text-sky-400" : "text-slate-500"}`}
+        className={`h-4 w-4 ${active ? "text-orange-400" : "text-zinc-500"}`}
         width={16}
         height={16}
       />

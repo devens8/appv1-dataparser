@@ -8,12 +8,12 @@ import { numericColumns } from "@/lib/dataset";
 import { cusumChangePoints, rollingZScore } from "@/lib/anomaly";
 import { fmt, fmtInt } from "@/lib/format";
 import Chart, { CHART_PALETTE } from "@/components/Chart";
-import { Field, Panel, Select, StatGrid } from "@/components/ui";
+import { Field, Panel, Select } from "@/components/ui";
 import { NoNumeric } from "@/components/workspace/tools/shared";
 
-const AX_LABEL = { color: "#94a3b8", fontSize: 11 };
-const AX_LINE = { lineStyle: { color: "#334155" } };
-const SPLIT = { lineStyle: { color: "#1e293b" } };
+const AX_LABEL = { color: "#a1a1aa", fontSize: 11 };
+const AX_LINE = { lineStyle: { color: "#3f3f46" } };
+const SPLIT = { lineStyle: { color: "#27272a" } };
 
 export default function AnomalyView({
   dataset,
@@ -65,7 +65,7 @@ export default function AnomalyView({
         symbolSize: 11,
         itemStyle: {
           color: "#f87171",
-          borderColor: "#0c1322",
+          borderColor: "#0a0a0a",
           borderWidth: 1.5,
           shadowColor: "rgba(248,113,113,0.6)",
           shadowBlur: 10,
@@ -94,8 +94,8 @@ export default function AnomalyView({
       legend: {
         top: 2,
         data: [yCol?.name ?? "", "Anomaly"],
-        textStyle: { color: "#94a3b8", fontSize: 11 },
-        inactiveColor: "#475569",
+        textStyle: { color: "#a1a1aa", fontSize: 11 },
+        inactiveColor: "#52525b",
       },
       grid: { left: 56, right: 24, top: 36, bottom: 44, containLabel: true },
       xAxis: {
@@ -104,7 +104,7 @@ export default function AnomalyView({
         name: "Index",
         nameLocation: "middle",
         nameGap: 28,
-        nameTextStyle: { color: "#cbd5e1", fontSize: 12 },
+        nameTextStyle: { color: "#d4d4d8", fontSize: 12 },
         splitLine: { show: false },
         axisLabel: AX_LABEL,
         axisLine: AX_LINE,
@@ -113,7 +113,7 @@ export default function AnomalyView({
         type: "value",
         scale: true,
         name: yCol?.name,
-        nameTextStyle: { color: "#cbd5e1", fontSize: 12 },
+        nameTextStyle: { color: "#d4d4d8", fontSize: 12 },
         splitLine: SPLIT,
         axisLabel: AX_LABEL,
       },
@@ -135,7 +135,7 @@ export default function AnomalyView({
       yAxis: {
         type: "value",
         name: "CUSUM (σ)",
-        nameTextStyle: { color: "#94a3b8" },
+        nameTextStyle: { color: "#a1a1aa" },
         splitLine: SPLIT,
         axisLabel: AX_LABEL,
       },
@@ -162,13 +162,31 @@ export default function AnomalyView({
 
   const pct = y.length ? (rolling.anomalies.length / y.length) * 100 : 0;
 
+  const summaryItems = [
+    {
+      label: "Anomalies",
+      value: fmtInt(rolling.anomalies.length),
+      accent: "text-red-300",
+      hint: `${fmt(pct, 1)}% of points`,
+    },
+    { label: "Window", value: fmtInt(rolling.window) },
+    { label: "Z threshold", value: `${fmt(rolling.threshold, 1)}σ` },
+    {
+      label: "Change points",
+      value: fmtInt(cusum.changePoints.length),
+      accent: "text-amber-300",
+    },
+  ];
+
   return (
-    <div className="animate-fade-in space-y-4">
+    <div className="animate-fade-in grid h-full min-h-0 grid-rows-[1.5fr_1fr] gap-3">
+      {/* Rolling anomaly series — full width */}
       <Panel
+        fill
         title="Rolling anomaly detection"
         subtitle={`Trailing-window z-score on ${yCol?.name ?? "the selected variable"}`}
         actions={
-          <div className="flex flex-wrap items-end gap-3">
+          <div className="flex flex-wrap items-center justify-end gap-3">
             <Field label={`Window · ${window}`}>
               <input
                 type="range"
@@ -176,7 +194,7 @@ export default function AnomalyView({
                 max={Math.max(5, Math.min(60, y.length))}
                 value={window}
                 onChange={(e) => setWindow(Number(e.target.value))}
-                className="w-28 accent-sky-500"
+                className="w-24 accent-orange-500"
               />
             </Field>
             <Field label="Z threshold">
@@ -193,42 +211,20 @@ export default function AnomalyView({
           </div>
         }
       >
-        <div className="p-3">
-          <Chart option={seriesOption} height={380} />
+        <div className="h-full p-2">
+          <Chart option={seriesOption} height="100%" />
         </div>
       </Panel>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <Panel title="Summary" className="lg:col-span-1">
-          <StatGrid
-            cols="grid-cols-2"
-            items={[
-              {
-                label: "Anomalies",
-                value: fmtInt(rolling.anomalies.length),
-                accent: "text-rose-300",
-                hint: `${fmt(pct, 1)}% of points`,
-              },
-              { label: "Window", value: fmtInt(rolling.window) },
-              {
-                label: "Z threshold",
-                value: `${fmt(rolling.threshold, 1)}σ`,
-              },
-              {
-                label: "Change points",
-                value: fmtInt(cusum.changePoints.length),
-                accent: "text-amber-300",
-              },
-            ]}
-          />
-        </Panel>
-
+      {/* CUSUM | summary | flagged list */}
+      <div className="grid min-h-0 grid-cols-12 gap-3">
         <Panel
+          fill
+          className="col-span-12 lg:col-span-5"
           title="Change-point detection"
           subtitle="Two-sided CUSUM — regime shifts in the mean"
-          className="lg:col-span-2"
           actions={
-            <Field label="CUSUM threshold">
+            <Field label="CUSUM σ">
               <Select
                 value={String(cusumThreshold)}
                 onChange={(v) => setCusumThreshold(Number(v))}
@@ -242,51 +238,73 @@ export default function AnomalyView({
             </Field>
           }
         >
-          <div className="p-3">
-            <Chart option={cusumOption} height={240} />
+          <div className="h-full p-2">
+            <Chart option={cusumOption} height="100%" />
           </div>
         </Panel>
-      </div>
 
-      {rolling.anomalies.length > 0 && (
+        <Panel fill className="col-span-12 lg:col-span-3" title="Summary">
+          <div className="grid grid-cols-2 divide-x divide-y divide-zinc-800/60 border-t border-zinc-800/60">
+            {summaryItems.map((it) => (
+              <div key={it.label} className="px-3.5 py-2">
+                <div className="text-[9px] font-semibold uppercase tracking-wider text-zinc-500">
+                  {it.label}
+                </div>
+                <div
+                  className={`tabular mt-0.5 text-sm font-semibold ${
+                    it.accent ?? "text-zinc-100"
+                  }`}
+                >
+                  {it.value}
+                </div>
+                {it.hint && (
+                  <div className="mt-0.5 text-[10px] text-zinc-500">{it.hint}</div>
+                )}
+              </div>
+            ))}
+          </div>
+        </Panel>
+
         <Panel
+          fill
+          className="col-span-12 lg:col-span-4"
           title="Flagged anomalies"
           subtitle={`${rolling.anomalies.length} point${
             rolling.anomalies.length === 1 ? "" : "s"
-          } exceeding ${fmt(rolling.threshold, 1)}σ from the trailing window`}
+          } beyond ${fmt(rolling.threshold, 1)}σ`}
         >
-          <div className="max-h-72 overflow-auto">
-            <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-slate-900/95 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-500 backdrop-blur">
-                <tr className="border-b border-slate-800">
-                  <th className="px-5 py-2">Index</th>
-                  <th className="px-5 py-2 text-right">Value</th>
-                  <th className="px-5 py-2 text-right">Rolling z</th>
-                  <th className="px-5 py-2">Direction</th>
+          <div className="h-full overflow-auto">
+            <table className="w-full text-[12px]">
+              <thead className="sticky top-0 bg-zinc-950/95 text-left text-[10px] font-semibold uppercase tracking-wide text-zinc-500 backdrop-blur">
+                <tr className="border-b border-zinc-800">
+                  <th className="px-3.5 py-1.5">#</th>
+                  <th className="px-3.5 py-1.5 text-right">Value</th>
+                  <th className="px-3.5 py-1.5 text-right">z</th>
+                  <th className="px-3.5 py-1.5">Dir</th>
                 </tr>
               </thead>
               <tbody>
                 {rolling.anomalies.map((a) => (
                   <tr
                     key={a.index}
-                    className="border-t border-slate-800/60 hover:bg-slate-800/30"
+                    className="border-t border-zinc-800/60 hover:bg-zinc-800/30"
                   >
-                    <td className="tabular px-5 py-1.5 text-slate-500">
+                    <td className="tabular px-3.5 py-1 text-zinc-500">
                       {a.index + 1}
                     </td>
-                    <td className="tabular px-5 py-1.5 text-right font-medium text-slate-200">
+                    <td className="tabular px-3.5 py-1 text-right font-medium text-zinc-200">
                       {fmt(a.value)}
                     </td>
-                    <td className="tabular px-5 py-1.5 text-right text-slate-400">
+                    <td className="tabular px-3.5 py-1 text-right text-zinc-400">
                       {fmt(a.score, 2)}
                     </td>
-                    <td className="px-5 py-1.5">
+                    <td className="px-3.5 py-1">
                       <span
                         className={
-                          a.score > 0 ? "text-rose-300" : "text-amber-300"
+                          a.score > 0 ? "text-red-300" : "text-amber-300"
                         }
                       >
-                        {a.score > 0 ? "▲ Spike" : "▼ Dip"}
+                        {a.score > 0 ? "▲" : "▼"}
                       </span>
                     </td>
                   </tr>
@@ -295,7 +313,7 @@ export default function AnomalyView({
             </table>
           </div>
         </Panel>
-      )}
+      </div>
     </div>
   );
 }
