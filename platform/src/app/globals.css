@@ -3,8 +3,10 @@
 @tailwind utilities;
 
 :root {
-  --background: #f8fafc;
-  --foreground: #1e293b;
+  --background: #060a14;
+  --panel: #0c1322;
+  --border: #1e293b;
+  --foreground: #e2e8f0;
 }
 
 html {
@@ -13,7 +15,24 @@ html {
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
+  /* Subtle instrument-panel depth: cool radial glows fixed to the viewport. */
+  background-image: radial-gradient(
+      900px circle at 12% -8%,
+      rgba(56, 189, 248, 0.08),
+      transparent 42%
+    ),
+    radial-gradient(
+      820px circle at 102% 4%,
+      rgba(99, 102, 241, 0.1),
+      transparent 40%
+    ),
+    radial-gradient(
+      700px circle at 50% 120%,
+      rgba(20, 184, 166, 0.06),
+      transparent 45%
+    );
+  background-attachment: fixed;
   color: var(--foreground);
   -webkit-font-smoothing: antialiased;
 }
@@ -25,28 +44,80 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-/* Refined, unobtrusive scrollbars */
+/* Refined dark scrollbars */
 ::-webkit-scrollbar {
-  width: 9px;
-  height: 9px;
+  width: 10px;
+  height: 10px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(100, 116, 139, 0.28);
+  background: rgba(148, 163, 184, 0.18);
   border-radius: 6px;
   border: 2px solid transparent;
   background-clip: padding-box;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(100, 116, 139, 0.5);
+  background: rgba(148, 163, 184, 0.38);
   background-clip: padding-box;
 }
 
-/* Thin hairline grid background for the canvas / drop areas */
+/* Thin hairline grid background for canvas / drop / spreadsheet areas */
 .grid-bg {
-  background-image: linear-gradient(rgba(15, 23, 42, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(15, 23, 42, 0.035) 1px, transparent 1px);
-  background-size: 28px 28px;
+  background-image: linear-gradient(
+      rgba(148, 163, 184, 0.05) 1px,
+      transparent 1px
+    ),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
+  background-size: 26px 26px;
+}
+
+/* Panel surface used across the app */
+.surface {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.025),
+    rgba(255, 255, 255, 0)
+  );
+  background-color: rgba(12, 19, 34, 0.72);
+  border: 1px solid rgba(30, 41, 59, 0.9);
+  backdrop-filter: blur(6px);
+}
+
+/* Soft outer glow for elevated/active elements */
+.glow {
+  box-shadow: 0 18px 50px -28px rgba(0, 0, 0, 0.9),
+    0 0 0 1px rgba(148, 163, 184, 0.04);
+}
+
+/* A glowing accent hairline (used under headers / active tabs) */
+.hairline-accent {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(56, 189, 248, 0.6),
+    rgba(99, 102, 241, 0.6),
+    transparent
+  );
+}
+
+/* Shimmer skeleton */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: rgba(148, 163, 184, 0.07);
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(148, 163, 184, 0.1),
+    transparent
+  );
+  animation: shimmer 1.6s infinite;
 }

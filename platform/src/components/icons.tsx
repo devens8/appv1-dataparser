@@ -133,3 +133,42 @@ export const IconLock = (p: P) => (
     <path d="M8 11V8a4 4 0 018 0v3" />
   </svg>
 );
+
+export const IconDownload = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M12 4v12" />
+    <path d="M8 12l4 4 4-4" />
+    <path d="M4 20h16" />
+  </svg>
+);
+
+export const IconMessage = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M21 12a8 8 0 01-8 8H5l-2 2V12a8 8 0 0116 0z" />
+  </svg>
+);
+
+export const IconPulse = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M3 12h4l2-6 4 12 2-6h6" />
+  </svg>
+);
+
+export const IconStar = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M12 4l2.4 4.9 5.4.8-3.9 3.8.9 5.3-4.8-2.5-4.8 2.5.9-5.3L4.2 9.7l5.4-.8L12 4z" />
+  </svg>
+);
+
+export const IconCheck = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M5 12l5 5L20 7" />
+  </svg>
+);
+
+export const IconUser = (p: P) => (
+  <svg {...base} {...p}>
+    <circle cx="12" cy="8" r="4" />
+    <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+  </svg>
+);

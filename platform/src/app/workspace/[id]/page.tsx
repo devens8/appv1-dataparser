@@ -5,40 +5,42 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import DataImport from "@/components/workspace/DataImport";
-import DataTable from "@/components/workspace/DataTable";
-import OverviewTool from "@/components/workspace/tools/OverviewTool";
-import StatisticsTool from "@/components/workspace/tools/StatisticsTool";
-import OutliersTool from "@/components/workspace/tools/OutliersTool";
-import TrendsTool from "@/components/workspace/tools/TrendsTool";
-import VisualizationTool from "@/components/workspace/tools/VisualizationTool";
+import ChartsView from "@/components/workspace/views/ChartsView";
+import StatisticsView from "@/components/workspace/views/StatisticsView";
+import DataView from "@/components/workspace/views/DataView";
+import AnomalyView from "@/components/workspace/views/AnomalyView";
+import ComparisonView from "@/components/workspace/views/ComparisonView";
+import LongitudinalView from "@/components/workspace/views/LongitudinalView";
 import { useWorkspaceStore } from "@/store/workspaces";
+import { useSessionStore } from "@/store/session";
 import { accent } from "@/lib/colors";
+import { computeAnalysis, INDEX_X } from "@/lib/analysis";
+import { methodLabels, type OutlierMethod } from "@/lib/outliers";
+import { numericColumns } from "@/lib/dataset";
+import { Field, Select } from "@/components/ui";
 import {
   IconChart,
+  IconClock,
   IconClose,
-  IconGrid,
+  IconLayers,
+  IconPulse,
   IconStats,
   IconTable,
-  IconTarget,
-  IconTrend,
 } from "@/components/icons";
 
-type Tool =
-  | "overview"
-  | "statistics"
-  | "outliers"
-  | "trends"
-  | "visualize"
-  | "data";
+type Tab = "charts" | "stats" | "data" | "anomaly" | "compare" | "longitudinal";
 
-const TOOLS: { id: Tool; label: string; icon: typeof IconGrid }[] = [
-  { id: "overview", label: "Overview", icon: IconGrid },
-  { id: "statistics", label: "Statistics", icon: IconStats },
-  { id: "outliers", label: "Outliers", icon: IconTarget },
-  { id: "trends", label: "Trends", icon: IconTrend },
-  { id: "visualize", label: "Visualize", icon: IconChart },
+const TABS: { id: Tab; label: string; icon: typeof IconChart }[] = [
+  { id: "charts", label: "Charts", icon: IconChart },
+  { id: "stats", label: "Statistics", icon: IconStats },
   { id: "data", label: "Data", icon: IconTable },
+  { id: "anomaly", label: "Anomalies", icon: IconPulse },
+  { id: "compare", label: "Compare", icon: IconLayers },
+  { id: "longitudinal", label: "Longitudinal", icon: IconClock },
 ];
+
+/** Tabs that operate on the single active dataset (need the X/Y/method bar). */
+const SINGLE_DATASET_TABS: Tab[] = ["charts", "stats", "data", "anomaly"];
 
 export default function WorkspacePage() {
   const params = useParams<{ id: string }>();
@@ -47,9 +49,15 @@ export default function WorkspacePage() {
   const hydrated = useWorkspaceStore((s) => s.hydrated);
   const setActiveDataset = useWorkspaceStore((s) => s.setActiveDataset);
   const removeDataset = useWorkspaceStore((s) => s.removeDataset);
+  const canDelete = useSessionStore((s) => s.can("delete"));
 
   const workspace = workspaces.find((w) => w.id === id);
-  const [tool, setTool] = useState<Tool>("overview");
+  const [tab, setTab] = useState<Tab>("charts");
+
+  // Single, lifted analysis selection — chosen once, used by every tab.
+  const [xName, setXName] = useState<string>(INDEX_X);
+  const [yName, setYName] = useState<string>("");
+  const [method, setMethod] = useState<OutlierMethod>("iqr");
 
   const activeDataset = useMemo(() => {
     if (!workspace) return null;
@@ -60,12 +68,20 @@ export default function WorkspacePage() {
     );
   }, [workspace]);
 
+  const analysis = useMemo(
+    () =>
+      activeDataset
+        ? computeAnalysis(activeDataset, xName, yName, method)
+        : null,
+    [activeDataset, xName, yName, method],
+  );
+
   if (!hydrated) {
     return (
       <Shell>
         <div className="mx-auto max-w-5xl px-8 py-10">
-          <div className="h-8 w-48 animate-pulse rounded bg-slate-200" />
-          <div className="mt-6 h-64 animate-pulse rounded-xl bg-slate-100" />
+          <div className="skeleton h-8 w-48 rounded" />
+          <div className="skeleton mt-6 h-64 rounded-xl" />
         </div>
       </Shell>
     );
@@ -75,15 +91,15 @@ export default function WorkspacePage() {
     return (
       <Shell>
         <div className="flex h-full flex-col items-center justify-center text-center">
-          <h2 className="text-lg font-semibold text-slate-800">
+          <h2 className="text-lg font-semibold text-slate-100">
             Workspace not found
           </h2>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-slate-400">
             It may have been deleted.
           </p>
           <Link
             href="/"
-            className="mt-4 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+            className="mt-4 rounded-lg bg-sky-500/90 px-4 py-2 text-sm font-medium text-white hover:bg-sky-400"
           >
             Back to workspaces
           </Link>
@@ -93,28 +109,32 @@ export default function WorkspacePage() {
   }
 
   const a = accent(workspace.color);
+  const hasNumeric =
+    activeDataset && numericColumns(activeDataset).length > 0;
 
   return (
     <Shell>
       <div className="flex h-full flex-col">
         {/* Header */}
-        <header className="border-b border-slate-200 bg-white px-8 pt-5">
-          <nav className="flex items-center gap-1.5 text-xs text-slate-400">
-            <Link href="/" className="hover:text-slate-600">
+        <header className="relative border-b border-slate-800/80 bg-slate-950/40 px-6 pt-4">
+          <nav className="flex items-center gap-1.5 text-xs text-slate-500">
+            <Link href="/" className="hover:text-slate-300">
               Workspaces
             </Link>
             <span>/</span>
-            <span className="text-slate-600">{workspace.name}</span>
+            <span className="text-slate-300">{workspace.name}</span>
           </nav>
-          <div className="mt-2 flex items-center justify-between">
+          <div className="mt-1.5 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <span className={`h-8 w-1.5 rounded-full ${a.bg}`} />
+              <span
+                className={`h-7 w-1.5 rounded-full ${a.bg} shadow-[0_0_12px_currentColor]`}
+              />
               <div>
-                <h1 className="text-xl font-semibold tracking-tight text-slate-900">
+                <h1 className="text-lg font-semibold tracking-tight text-slate-50">
                   {workspace.name}
                 </h1>
                 {workspace.description && (
-                  <p className="text-sm text-slate-500">
+                  <p className="text-sm text-slate-400">
                     {workspace.description}
                   </p>
                 )}
@@ -125,7 +145,7 @@ export default function WorkspacePage() {
 
           {/* Dataset tabs */}
           {workspace.datasets.length > 0 && (
-            <div className="mt-4 flex items-center gap-2 overflow-x-auto pb-3">
+            <div className="mt-3 flex items-center gap-2 overflow-x-auto pb-2.5">
               {workspace.datasets.map((d) => {
                 const isActive = d.id === activeDataset?.id;
                 return (
@@ -134,25 +154,27 @@ export default function WorkspacePage() {
                     onClick={() => setActiveDataset(workspace.id, d.id)}
                     className={`group flex shrink-0 cursor-pointer items-center gap-2 rounded-lg border px-3 py-1.5 text-sm transition-colors ${
                       isActive
-                        ? "border-indigo-300 bg-indigo-50 text-indigo-700"
-                        : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                        ? "border-sky-500/40 bg-sky-500/10 text-sky-200"
+                        : "border-slate-800 bg-slate-900/50 text-slate-400 hover:border-slate-700 hover:text-slate-200"
                     }`}
                   >
                     <IconTable className="h-3.5 w-3.5" width={14} height={14} />
                     <span className="max-w-[160px] truncate">{d.name}</span>
-                    <span className="tabular text-[10px] text-slate-400">
+                    <span className="tabular text-[10px] text-slate-500">
                       {d.rows.length}×{d.columns.length}
                     </span>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (confirm(`Remove dataset "${d.name}"?`))
-                          removeDataset(workspace.id, d.id);
-                      }}
-                      className="rounded p-0.5 text-slate-300 opacity-0 hover:bg-rose-50 hover:text-rose-500 group-hover:opacity-100"
-                    >
-                      <IconClose className="h-3 w-3" width={12} height={12} />
-                    </button>
+                    {canDelete && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (confirm(`Remove dataset "${d.name}"?`))
+                            removeDataset(workspace.id, d.id);
+                        }}
+                        className="rounded p-0.5 text-slate-600 opacity-0 hover:bg-rose-500/10 hover:text-rose-400 group-hover:opacity-100"
+                      >
+                        <IconClose className="h-3 w-3" width={12} height={12} />
+                      </button>
+                    )}
                   </div>
                 );
               })}
@@ -162,20 +184,23 @@ export default function WorkspacePage() {
           {/* Tool tabs */}
           {activeDataset && (
             <div className="-mb-px flex items-center gap-1 overflow-x-auto">
-              {TOOLS.map((t) => {
-                const isActive = tool === t.id;
+              {TABS.map((t) => {
+                const isActive = tab === t.id;
                 return (
                   <button
                     key={t.id}
-                    onClick={() => setTool(t.id)}
-                    className={`flex shrink-0 items-center gap-2 border-b-2 px-3.5 py-2.5 text-sm font-medium transition-colors ${
+                    onClick={() => setTab(t.id)}
+                    className={`relative flex shrink-0 items-center gap-2 px-3.5 py-2.5 text-sm font-medium transition-colors ${
                       isActive
-                        ? "border-indigo-600 text-indigo-700"
-                        : "border-transparent text-slate-500 hover:text-slate-700"
+                        ? "text-sky-300"
+                        : "text-slate-500 hover:text-slate-300"
                     }`}
                   >
                     <t.icon className="h-4 w-4" width={16} height={16} />
                     {t.label}
+                    {isActive && (
+                      <span className="hairline-accent animate-sweep absolute inset-x-0 bottom-0 h-0.5 origin-left" />
+                    )}
                   </button>
                 );
               })}
@@ -183,24 +208,71 @@ export default function WorkspacePage() {
           )}
         </header>
 
+        {/* Global analysis selector — choose data once, shown everywhere */}
+        {activeDataset && hasNumeric && analysis && SINGLE_DATASET_TABS.includes(tab) && (
+          <div className="flex flex-wrap items-end gap-4 border-b border-slate-800/80 bg-slate-900/30 px-6 py-2.5">
+            <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+              <span className="h-1.5 w-1.5 animate-glow-pulse rounded-full bg-sky-400" />
+              Analyzing
+            </div>
+            <Field label="X axis">
+              <Select value={xName} onChange={setXName}>
+                <option value={INDEX_X}>Row index</option>
+                {activeDataset.columns.map((c) => (
+                  <option key={c.index} value={c.name}>
+                    {c.name}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+            <Field label="Y variable">
+              <Select value={analysis.yName} onChange={setYName}>
+                {analysis.numCols.map((c) => (
+                  <option key={c.index} value={c.name}>
+                    {c.name}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+            <Field label="Outlier method">
+              <Select
+                value={method}
+                onChange={(v) => setMethod(v as OutlierMethod)}
+              >
+                {(Object.keys(methodLabels) as OutlierMethod[]).map((m) => (
+                  <option key={m} value={m}>
+                    {methodLabels[m]}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+          </div>
+        )}
+
         {/* Body */}
-        <div className="flex-1 overflow-y-auto bg-slate-50 px-8 py-6">
+        <div className="flex-1 overflow-y-auto px-6 py-4">
           {!activeDataset ? (
             <div className="py-10">
               <DataImport workspaceId={workspace.id} />
             </div>
           ) : (
-            <div className="animate-fade-in mx-auto max-w-6xl">
-              {tool === "overview" && <OverviewTool dataset={activeDataset} />}
-              {tool === "statistics" && (
-                <StatisticsTool dataset={activeDataset} />
+            <div className="mx-auto max-w-6xl" key={tab}>
+              {tab === "charts" && analysis && (
+                <ChartsView dataset={activeDataset} analysis={analysis} />
               )}
-              {tool === "outliers" && <OutliersTool dataset={activeDataset} />}
-              {tool === "trends" && <TrendsTool dataset={activeDataset} />}
-              {tool === "visualize" && (
-                <VisualizationTool dataset={activeDataset} />
+              {tab === "stats" && analysis && (
+                <StatisticsView dataset={activeDataset} analysis={analysis} />
               )}
-              {tool === "data" && <DataTable dataset={activeDataset} />}
+              {tab === "data" && analysis && (
+                <DataView dataset={activeDataset} analysis={analysis} />
+              )}
+              {tab === "anomaly" && analysis && (
+                <AnomalyView dataset={activeDataset} analysis={analysis} />
+              )}
+              {tab === "compare" && <ComparisonView workspace={workspace} />}
+              {tab === "longitudinal" && (
+                <LongitudinalView workspace={workspace} />
+              )}
             </div>
           )}
         </div>

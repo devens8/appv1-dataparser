@@ -71,7 +71,7 @@ export default function DataImport({
       <>
         <button
           onClick={() => inputRef.current?.click()}
-          className="flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:border-indigo-400 hover:text-indigo-600"
+          className="flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-900/70 px-3.5 py-2 text-sm font-medium text-slate-200 transition-colors hover:border-sky-500/60 hover:text-sky-300"
         >
           <IconUpload className="h-4 w-4" width={16} height={16} />
           Import CSV
@@ -109,22 +109,22 @@ export default function DataImport({
         }}
         className={`grid-bg flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-8 py-16 text-center transition-colors ${
           dragging
-            ? "border-indigo-500 bg-indigo-50/60"
-            : "border-slate-300 bg-white/60 hover:border-indigo-400 hover:bg-indigo-50/30"
+            ? "border-sky-500 bg-sky-500/10"
+            : "border-slate-700 bg-slate-900/30 hover:border-sky-500/60 hover:bg-sky-500/5"
         }`}
       >
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-500">
+        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-sky-500/10 text-sky-300 ring-1 ring-inset ring-sky-500/30">
           <IconUpload className="h-7 w-7" width={28} height={28} />
         </div>
-        <h3 className="mt-5 text-lg font-semibold text-slate-800">
+        <h3 className="mt-5 text-lg font-semibold text-slate-100">
           Add data to this workspace
         </h3>
-        <p className="mt-1 max-w-md text-sm text-slate-500">
+        <p className="mt-1 max-w-md text-sm text-slate-400">
           Drag and drop a CSV file here, or click to browse. Columns and types
           are detected automatically.
         </p>
         <div className="mt-5 flex items-center gap-3">
-          <span className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white">
+          <span className="rounded-lg bg-sky-500/90 px-4 py-2 text-sm font-medium text-white shadow-[0_0_24px_-8px_rgba(56,189,248,0.9)]">
             Choose file
           </span>
           <button
@@ -132,13 +132,13 @@ export default function DataImport({
               e.stopPropagation();
               loadSample();
             }}
-            className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-600 hover:border-slate-400"
+            className="rounded-lg border border-slate-700 bg-slate-900/70 px-4 py-2 text-sm font-medium text-slate-300 hover:border-slate-500 hover:text-slate-100"
           >
             Load sample dataset
           </button>
         </div>
         {error && (
-          <p className="mt-4 text-sm font-medium text-rose-500">{error}</p>
+          <p className="mt-4 text-sm font-medium text-rose-400">{error}</p>
         )}
       </div>
 
@@ -155,10 +155,10 @@ export default function DataImport({
       />
 
       <div className="mt-8">
-        <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
+        <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
           <IconLink className="h-4 w-4" width={16} height={16} />
           Or connect a source
-          <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[9px] text-slate-400">
+          <span className="rounded bg-slate-800 px-1.5 py-0.5 text-[9px] text-slate-400">
             Soon
           </span>
         </div>
@@ -166,10 +166,10 @@ export default function DataImport({
           {CONNECTORS.map((c) => (
             <div
               key={c.name}
-              className="cursor-not-allowed rounded-xl border border-slate-200 bg-white px-4 py-3.5 opacity-70"
+              className="cursor-not-allowed rounded-xl border border-slate-800 bg-slate-900/40 px-4 py-3.5 opacity-70"
             >
-              <div className="text-sm font-medium text-slate-700">{c.name}</div>
-              <div className="text-xs text-slate-400">{c.desc}</div>
+              <div className="text-sm font-medium text-slate-300">{c.name}</div>
+              <div className="text-xs text-slate-500">{c.desc}</div>
             </div>
           ))}
         </div>

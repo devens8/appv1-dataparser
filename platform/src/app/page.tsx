@@ -37,19 +37,19 @@ export default function HomePage() {
 
       <main className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-6xl px-8 py-10">
-          <header className="flex items-end justify-between">
+          <header className="animate-fade-in-up flex items-end justify-between">
             <div>
-              <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
+              <h1 className="text-2xl font-semibold tracking-tight text-slate-50">
                 Workspaces
               </h1>
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-sm text-slate-400">
                 Organise datasets and analyses. Open a workspace to import data
                 and run tools.
               </p>
             </div>
             <button
               onClick={() => setModalOpen(true)}
-              className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-indigo-700"
+              className="flex items-center gap-2 rounded-lg bg-sky-500/90 px-4 py-2.5 text-sm font-medium text-white shadow-[0_0_24px_-8px_rgba(56,189,248,0.9)] transition-all hover:bg-sky-400"
             >
               <IconPlus className="h-4 w-4" width={16} height={16} />
               New workspace
@@ -59,10 +59,7 @@ export default function HomePage() {
           {!hydrated ? (
             <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {[0, 1, 2].map((i) => (
-                <div
-                  key={i}
-                  className="h-44 animate-pulse rounded-xl bg-slate-100"
-                />
+                <div key={i} className="skeleton h-44 rounded-xl" />
               ))}
             </div>
           ) : sorted.length === 0 ? (
@@ -71,27 +68,28 @@ export default function HomePage() {
             <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
               <button
                 onClick={() => setModalOpen(true)}
-                className="group flex min-h-44 flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-slate-300 bg-white/50 text-slate-400 transition-colors hover:border-indigo-400 hover:bg-indigo-50/40 hover:text-indigo-600"
+                className="group flex min-h-44 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-slate-700 bg-slate-900/30 text-slate-500 transition-colors hover:border-sky-500/60 hover:bg-sky-500/5 hover:text-sky-300"
               >
-                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-100 transition-colors group-hover:bg-indigo-100">
+                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-800/60 transition-colors group-hover:bg-sky-500/15">
                   <IconPlus className="h-5 w-5" width={20} height={20} />
                 </div>
                 <span className="text-sm font-medium">New workspace</span>
               </button>
 
-              {sorted.map((w) => {
+              {sorted.map((w, i) => {
                 const a = accent(w.color);
                 return (
                   <div
                     key={w.id}
                     onClick={() => router.push(`/workspace/${w.id}`)}
-                    className="group relative cursor-pointer overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+                    style={{ animationDelay: `${Math.min(i, 8) * 40}ms` }}
+                    className="surface group animate-fade-in-up relative cursor-pointer overflow-hidden rounded-xl transition-all hover:-translate-y-0.5 hover:border-slate-700 hover:shadow-glow"
                   >
-                    <div className={`h-1.5 bg-gradient-to-r ${a.gradient}`} />
+                    <div className={`h-1 bg-gradient-to-r ${a.gradient}`} />
                     <div className="p-5">
                       <div className="flex items-start justify-between">
                         <div
-                          className={`flex h-10 w-10 items-center justify-center rounded-lg ${a.bgSoft} ${a.text}`}
+                          className={`flex h-10 w-10 items-center justify-center rounded-lg ring-1 ring-inset ${a.bgSoft} ${a.text} ${a.ring}`}
                         >
                           <IconTable
                             className="h-5 w-5"
@@ -105,7 +103,7 @@ export default function HomePage() {
                             if (confirm(`Delete workspace "${w.name}"?`))
                               deleteWorkspace(w.id);
                           }}
-                          className="rounded-md p-1.5 text-slate-300 opacity-0 transition-all hover:bg-rose-50 hover:text-rose-500 group-hover:opacity-100"
+                          className="rounded-md p-1.5 text-slate-600 opacity-0 transition-all hover:bg-rose-500/10 hover:text-rose-400 group-hover:opacity-100"
                           aria-label="Delete workspace"
                         >
                           <IconTrash
@@ -116,14 +114,14 @@ export default function HomePage() {
                         </button>
                       </div>
 
-                      <h3 className="mt-4 truncate font-semibold text-slate-800">
+                      <h3 className="mt-4 truncate font-semibold text-slate-100">
                         {w.name}
                       </h3>
-                      <p className="mt-1 line-clamp-2 h-9 text-sm text-slate-500">
+                      <p className="mt-1 line-clamp-2 h-9 text-sm text-slate-400">
                         {w.description || "No description"}
                       </p>
 
-                      <div className="mt-4 flex items-center gap-4 text-xs text-slate-400">
+                      <div className="mt-4 flex items-center gap-3 text-xs text-slate-500">
                         <span className="flex items-center gap-1.5">
                           <IconLayers
                             className="h-3.5 w-3.5"
@@ -156,20 +154,20 @@ export default function HomePage() {
 
 function EmptyState({ onCreate }: { onCreate: () => void }) {
   return (
-    <div className="mt-10 flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white/60 py-20 text-center">
-      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-500">
+    <div className="grid-bg animate-fade-in-up mt-10 flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-700 bg-slate-900/30 py-20 text-center">
+      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-sky-500/10 text-sky-300 ring-1 ring-inset ring-sky-500/30">
         <IconGrid className="h-7 w-7" width={28} height={28} />
       </div>
-      <h2 className="mt-5 text-lg font-semibold text-slate-800">
+      <h2 className="mt-5 text-lg font-semibold text-slate-100">
         Create your first workspace
       </h2>
-      <p className="mt-1 max-w-sm text-sm text-slate-500">
+      <p className="mt-1 max-w-sm text-sm text-slate-400">
         Workspaces keep your experiments organised. Add a CSV, then explore
         statistics, outliers, trends and visualizations.
       </p>
       <button
         onClick={onCreate}
-        className="mt-6 flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-indigo-700"
+        className="mt-6 flex items-center gap-2 rounded-lg bg-sky-500/90 px-5 py-2.5 text-sm font-medium text-white shadow-[0_0_24px_-8px_rgba(56,189,248,0.9)] transition-all hover:bg-sky-400"
       >
         <IconPlus className="h-4 w-4" width={16} height={16} />
         New workspace

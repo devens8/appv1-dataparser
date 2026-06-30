@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useWorkspaceStore } from "@/store/workspaces";
 import { accent } from "@/lib/colors";
+import SessionMenu from "@/components/SessionMenu";
 import {
   IconChart,
   IconClock,
@@ -12,23 +13,24 @@ import {
   IconLayers,
   IconLock,
   IconLogo,
+  IconPulse,
   IconShield,
   IconStats,
-  IconTarget,
   IconTrend,
 } from "@/components/icons";
 
 const TOOLS = [
+  { label: "Charts & visualize", icon: IconChart },
   { label: "Statistics", icon: IconStats },
-  { label: "Outliers", icon: IconTarget },
-  { label: "Trends", icon: IconTrend },
-  { label: "Visualize", icon: IconChart },
+  { label: "Compare datasets", icon: IconLayers },
+  { label: "Longitudinal", icon: IconClock },
+  { label: "Anomaly detection", icon: IconPulse },
+  { label: "Trends & outliers", icon: IconTrend },
 ];
 
 const COMING_SOON = [
-  { label: "Compare experiments", icon: IconLayers },
-  { label: "Longitudinal tracking", icon: IconClock },
-  { label: "Lab access & clearance", icon: IconShield },
+  { label: "Regulatory standards", icon: IconShield },
+  { label: "Graphical programming", icon: IconLayers },
 ];
 
 export default function Sidebar() {
@@ -41,16 +43,16 @@ export default function Sidebar() {
     .slice(0, 6);
 
   return (
-    <aside className="flex w-64 shrink-0 flex-col border-r border-slate-200 bg-white">
+    <aside className="relative flex w-64 shrink-0 flex-col border-r border-slate-800/80 bg-slate-950/60">
       <div className="flex items-center gap-2.5 px-5 py-4">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-tr from-indigo-600 to-violet-500 text-white shadow-sm">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-tr from-sky-500 to-indigo-500 text-white shadow-[0_0_18px_-4px_rgba(56,189,248,0.7)]">
           <IconLogo className="h-4.5 w-4.5" width={18} height={18} />
         </div>
         <div className="leading-tight">
-          <div className="text-sm font-semibold tracking-tight text-slate-800">
+          <div className="text-sm font-semibold tracking-tight text-slate-100">
             Strata
           </div>
-          <div className="text-[10px] font-medium uppercase tracking-wider text-slate-400">
+          <div className="text-[10px] font-medium uppercase tracking-wider text-slate-500">
             Data Workspace
           </div>
         </div>
@@ -73,13 +75,13 @@ export default function Sidebar() {
         {TOOLS.map((t) => (
           <div
             key={t.label}
-            className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-slate-500"
+            className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-slate-400"
           >
-            <t.icon className="h-4 w-4 text-slate-400" width={16} height={16} />
+            <t.icon className="h-4 w-4 text-slate-500" width={16} height={16} />
             {t.label}
           </div>
         ))}
-        <p className="px-3 pt-1 text-[11px] leading-relaxed text-slate-400">
+        <p className="px-3 pt-1 text-[11px] leading-relaxed text-slate-500">
           Open a workspace with data to run any tool.
         </p>
 
@@ -87,14 +89,11 @@ export default function Sidebar() {
         {!hydrated ? (
           <div className="space-y-1.5 px-2">
             {[0, 1, 2].map((i) => (
-              <div
-                key={i}
-                className="h-8 animate-pulse rounded-lg bg-slate-100"
-              />
+              <div key={i} className="skeleton h-8 rounded-lg" />
             ))}
           </div>
         ) : recent.length === 0 ? (
-          <p className="px-3 text-[11px] text-slate-400">No workspaces yet.</p>
+          <p className="px-3 text-[11px] text-slate-500">No workspaces yet.</p>
         ) : (
           recent.map((w) => {
             const a = accent(w.color);
@@ -105,11 +104,13 @@ export default function Sidebar() {
                 href={`/workspace/${w.id}`}
                 className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors ${
                   active
-                    ? "bg-slate-100 font-medium text-slate-800"
-                    : "text-slate-600 hover:bg-slate-50"
+                    ? "bg-slate-800/70 font-medium text-slate-100"
+                    : "text-slate-400 hover:bg-slate-800/40 hover:text-slate-200"
                 }`}
               >
-                <span className={`h-2 w-2 shrink-0 rounded-full ${a.bg}`} />
+                <span
+                  className={`h-2 w-2 shrink-0 rounded-full ${a.bg} shadow-[0_0_8px_currentColor]`}
+                />
                 <span className="truncate">{w.name}</span>
               </Link>
             );
@@ -120,35 +121,25 @@ export default function Sidebar() {
         {COMING_SOON.map((t) => (
           <div
             key={t.label}
-            className="flex items-center justify-between rounded-lg px-3 py-2 text-sm text-slate-400"
+            className="flex items-center justify-between rounded-lg px-3 py-2 text-sm text-slate-500"
           >
             <span className="flex items-center gap-2.5">
               <t.icon className="h-4 w-4" width={16} height={16} />
               {t.label}
             </span>
-            <IconLock className="h-3.5 w-3.5 text-slate-300" width={14} height={14} />
+            <IconLock className="h-3.5 w-3.5 text-slate-600" width={14} height={14} />
           </div>
         ))}
       </nav>
 
-      <div className="border-t border-slate-200 p-3">
-        <div className="flex items-center gap-2.5 rounded-lg px-2 py-1.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-200 text-xs font-semibold text-slate-600">
-            LB
-          </div>
-          <div className="leading-tight">
-            <div className="text-xs font-medium text-slate-700">Lab user</div>
-            <div className="text-[10px] text-slate-400">Local session</div>
-          </div>
-        </div>
-      </div>
+      <SessionMenu />
     </aside>
   );
 }
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="px-3 pb-1 pt-5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+    <div className="px-3 pb-1 pt-5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
       {children}
     </div>
   );
@@ -170,12 +161,12 @@ function NavLink({
       href={href}
       className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors ${
         active
-          ? "bg-indigo-50 font-medium text-indigo-700"
-          : "text-slate-600 hover:bg-slate-50"
+          ? "bg-sky-500/10 font-medium text-sky-300 ring-1 ring-inset ring-sky-500/20"
+          : "text-slate-400 hover:bg-slate-800/40 hover:text-slate-200"
       }`}
     >
       <Icon
-        className={`h-4 w-4 ${active ? "text-indigo-600" : "text-slate-400"}`}
+        className={`h-4 w-4 ${active ? "text-sky-400" : "text-slate-500"}`}
         width={16}
         height={16}
       />
