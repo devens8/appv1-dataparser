@@ -11,6 +11,7 @@ import DataView from "@/components/workspace/views/DataView";
 import AnomalyView from "@/components/workspace/views/AnomalyView";
 import ComparisonView from "@/components/workspace/views/ComparisonView";
 import LongitudinalView from "@/components/workspace/views/LongitudinalView";
+import CurveFitView from "@/components/workspace/views/CurveFitView";
 import { useWorkspaceStore } from "@/store/workspaces";
 import { useSessionStore } from "@/store/session";
 import { accent } from "@/lib/colors";
@@ -22,25 +23,52 @@ import {
   IconChart,
   IconClock,
   IconClose,
+  IconCurve,
   IconLayers,
+  IconMenu,
   IconPulse,
   IconStats,
   IconTable,
 } from "@/components/icons";
 
-type Tab = "charts" | "stats" | "data" | "anomaly" | "compare" | "longitudinal";
+type Tab =
+  | "charts"
+  | "fit"
+  | "stats"
+  | "data"
+  | "anomaly"
+  | "compare"
+  | "longitudinal";
 
-const TABS: { id: Tab; label: string; icon: typeof IconChart }[] = [
-  { id: "charts", label: "Charts", icon: IconChart },
-  { id: "stats", label: "Statistics", icon: IconStats },
-  { id: "data", label: "Data", icon: IconTable },
-  { id: "anomaly", label: "Anomalies", icon: IconPulse },
-  { id: "compare", label: "Compare", icon: IconLayers },
-  { id: "longitudinal", label: "Longitudinal", icon: IconClock },
+interface TabDef {
+  id: Tab;
+  label: string;
+  icon: typeof IconChart;
+  /** Analyze-menu grouping, Prism/JMP style. */
+  group: "Visualize" | "Fit" | "Describe" | "Compare" | "Detect";
+  blurb: string;
+}
+
+const TABS: TabDef[] = [
+  { id: "charts", label: "Charts", icon: IconChart, group: "Visualize", blurb: "Scatter / line, distribution, box & correlation" },
+  { id: "fit", label: "Curve Fit", icon: IconCurve, group: "Fit", blurb: "Nonlinear regression — dose-response, kinetics, growth" },
+  { id: "stats", label: "Statistics", icon: IconStats, group: "Describe", blurb: "Descriptive stats, trend & regression" },
+  { id: "data", label: "Data", icon: IconTable, group: "Describe", blurb: "Spreadsheet view of the raw matrix" },
+  { id: "anomaly", label: "Anomalies", icon: IconPulse, group: "Detect", blurb: "Rolling z-score & CUSUM change-points" },
+  { id: "compare", label: "Compare", icon: IconLayers, group: "Compare", blurb: "ANOVA, t-tests & nonparametric across datasets" },
+  { id: "longitudinal", label: "Longitudinal", icon: IconClock, group: "Compare", blurb: "Track a variable's mean across datasets over time" },
+];
+
+const ANALYZE_GROUPS: TabDef["group"][] = [
+  "Visualize",
+  "Fit",
+  "Describe",
+  "Compare",
+  "Detect",
 ];
 
 /** Tabs that operate on the single active dataset (need the X/Y/method bar). */
-const SINGLE_DATASET_TABS: Tab[] = ["charts", "stats", "data", "anomaly"];
+const SINGLE_DATASET_TABS: Tab[] = ["charts", "fit", "stats", "data", "anomaly"];
 
 export default function WorkspacePage() {
   const params = useParams<{ id: string }>();
@@ -53,6 +81,7 @@ export default function WorkspacePage() {
 
   const workspace = workspaces.find((w) => w.id === id);
   const [tab, setTab] = useState<Tab>("charts");
+  const [analyzeOpen, setAnalyzeOpen] = useState(false);
 
   // Single, lifted analysis selection — chosen once, used by every tab.
   const [xName, setXName] = useState<string>(INDEX_X);
@@ -140,7 +169,69 @@ export default function WorkspacePage() {
                 )}
               </div>
             </div>
-            <DataImport workspaceId={workspace.id} compact />
+            <div className="flex items-center gap-2">
+              {activeDataset && (
+                <div className="relative">
+                  <button
+                    onClick={() => setAnalyzeOpen((o) => !o)}
+                    className="flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-900/70 px-3.5 py-2 text-sm font-medium text-slate-200 transition-colors hover:border-sky-500/60 hover:text-sky-300"
+                  >
+                    <IconMenu className="h-4 w-4" width={16} height={16} />
+                    Analyze
+                  </button>
+                  {analyzeOpen && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-30"
+                        onClick={() => setAnalyzeOpen(false)}
+                      />
+                      <div className="surface glow absolute right-0 z-40 mt-2 w-72 rounded-xl p-2">
+                        {ANALYZE_GROUPS.map((g) => {
+                          const items = TABS.filter((t) => t.group === g);
+                          if (!items.length) return null;
+                          return (
+                            <div key={g} className="mb-1.5 last:mb-0">
+                              <div className="px-2 pb-1 pt-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                                {g}
+                              </div>
+                              {items.map((t) => (
+                                <button
+                                  key={t.id}
+                                  onClick={() => {
+                                    setTab(t.id);
+                                    setAnalyzeOpen(false);
+                                  }}
+                                  className={`flex w-full items-start gap-2.5 rounded-lg px-2 py-1.5 text-left transition-colors ${
+                                    tab === t.id
+                                      ? "bg-sky-500/10 text-sky-200"
+                                      : "text-slate-300 hover:bg-slate-800/60"
+                                  }`}
+                                >
+                                  <t.icon
+                                    className="mt-0.5 h-4 w-4 shrink-0 text-slate-400"
+                                    width={16}
+                                    height={16}
+                                  />
+                                  <span>
+                                    <span className="block text-sm font-medium">
+                                      {t.label}
+                                    </span>
+                                    <span className="block text-[11px] leading-tight text-slate-500">
+                                      {t.blurb}
+                                    </span>
+                                  </span>
+                                </button>
+                              ))}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+              <DataImport workspaceId={workspace.id} compact />
+            </div>
           </div>
 
           {/* Dataset tabs */}
@@ -259,6 +350,9 @@ export default function WorkspacePage() {
             <div className="mx-auto max-w-6xl" key={tab}>
               {tab === "charts" && analysis && (
                 <ChartsView dataset={activeDataset} analysis={analysis} />
+              )}
+              {tab === "fit" && analysis && (
+                <CurveFitView dataset={activeDataset} analysis={analysis} />
               )}
               {tab === "stats" && analysis && (
                 <StatisticsView dataset={activeDataset} analysis={analysis} />

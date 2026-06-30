@@ -10,9 +10,17 @@ import type {
 import type { Workspace } from "@/types";
 import { columnByName, columnValues, numericColumns } from "@/lib/dataset";
 import { descriptiveStats, welchTTest } from "@/lib/stats";
+import {
+  oneWayAnova,
+  postHocPairwise,
+  mannWhitneyU,
+  normalityTest,
+} from "@/lib/tests";
 import { fmt, fmtInt } from "@/lib/format";
 import Chart, { CHART_PALETTE } from "@/components/Chart";
-import { Field, Panel, Select, Badge } from "@/components/ui";
+import { Field, Panel, Select, Segmented, Badge, StatGrid } from "@/components/ui";
+
+type TestType = "welch" | "mw";
 
 const AX_LABEL = { color: "#94a3b8", fontSize: 11 };
 const AX_LINE = { lineStyle: { color: "#334155" } };
@@ -47,6 +55,7 @@ export default function ComparisonView({
   const [colName, setColName] = useState<string>(
     sharedColumns[0]?.name ?? "",
   );
+  const [testType, setTestType] = useState<TestType>("welch");
 
   const active = sharedColumns.some((c) => c.name === colName)
     ? colName
@@ -190,24 +199,85 @@ export default function ComparisonView({
     } as EChartsOption;
   }, [series]);
 
-  // Pairwise Welch t-tests across every dataset pair.
+  // One-way ANOVA across all groups (omnibus test for ≥3 groups).
+  const anova = useMemo(
+    () =>
+      oneWayAnova(series.map((s) => ({ name: s.name, values: s.values }))),
+    [series],
+  );
+
+  const postHoc = useMemo(
+    () =>
+      anova
+        ? postHocPairwise(
+            series.map((s) => ({ name: s.name, values: s.values })),
+            anova,
+          )
+        : [],
+    [series, anova],
+  );
+
+  // Pairwise comparisons — parametric (Welch t) or nonparametric (Mann–Whitney).
   const pairs = useMemo(() => {
     const out: {
       a: string;
       b: string;
-      result: ReturnType<typeof welchTTest>;
+      meanDiff: number | null;
+      stat: number | null;
+      statLabel: string;
+      df: number | null;
+      p: number | null;
+      effect: number | null;
+      effectLabel: string;
+      significant: boolean;
     }[] = [];
     for (let i = 0; i < series.length; i++) {
       for (let j = i + 1; j < series.length; j++) {
-        out.push({
-          a: series[i].name,
-          b: series[j].name,
-          result: welchTTest(series[i].values, series[j].values),
-        });
+        const A = series[i];
+        const B = series[j];
+        if (testType === "welch") {
+          const r = welchTTest(A.values, B.values);
+          out.push({
+            a: A.name,
+            b: B.name,
+            meanDiff: r?.meanDiff ?? null,
+            stat: r?.t ?? null,
+            statLabel: "t",
+            df: r?.df ?? null,
+            p: r?.p ?? null,
+            effect: r?.cohensD ?? null,
+            effectLabel: "Cohen's d",
+            significant: r?.significant ?? false,
+          });
+        } else {
+          const r = mannWhitneyU(A.values, B.values);
+          out.push({
+            a: A.name,
+            b: B.name,
+            meanDiff: (A.stats?.median ?? 0) - (B.stats?.median ?? 0),
+            stat: r?.u ?? null,
+            statLabel: "U",
+            df: null,
+            p: r?.p ?? null,
+            effect: r?.z ?? null,
+            effectLabel: "z",
+            significant: r?.significant ?? false,
+          });
+        }
       }
     }
     return out;
-  }, [series]);
+  }, [series, testType]);
+
+  // Per-group normality (D'Agostino–Pearson) for picking parametric vs not.
+  const normality = useMemo(
+    () =>
+      series.map((s) => ({
+        name: s.name,
+        result: normalityTest(s.values),
+      })),
+    [series],
+  );
 
   if (workspace.datasets.length < 2) {
     return (
@@ -265,10 +335,11 @@ export default function ComparisonView({
                 <th className="px-5 py-2.5 text-right">Median</th>
                 <th className="px-5 py-2.5 text-right">Min</th>
                 <th className="px-5 py-2.5 text-right">Max</th>
+                <th className="px-5 py-2.5">Normality</th>
               </tr>
             </thead>
             <tbody>
-              {series.map((s) => (
+              {series.map((s, si) => (
                 <tr
                   key={s.id}
                   className="border-t border-slate-800/60 hover:bg-slate-800/30"
@@ -299,12 +370,114 @@ export default function ComparisonView({
                   <td className="tabular px-5 py-2 text-right text-slate-400">
                     {fmt(s.stats?.max)}
                   </td>
+                  <td className="px-5 py-2">
+                    {(() => {
+                      const nr = normality[si]?.result;
+                      if (!nr)
+                        return <span className="text-slate-600">n&lt;8</span>;
+                      return (
+                        <Badge tone={nr.normal ? "emerald" : "amber"}>
+                          {nr.normal ? "Normal" : "Non-normal"}
+                        </Badge>
+                      );
+                    })()}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+        <p className="px-5 py-2.5 text-[11px] text-slate-500">
+          Normality by D&apos;Agostino–Pearson omnibus K² (α = 0.05). Non-normal
+          groups favour the nonparametric Mann–Whitney test below.
+        </p>
       </Panel>
+
+      {anova && series.length >= 3 && (
+        <Panel
+          title="One-way ANOVA"
+          subtitle="Omnibus test for a difference among the group means"
+          actions={
+            <Badge tone={anova.significant ? "emerald" : "slate"}>
+              {anova.significant ? "Significant" : "n.s."}
+            </Badge>
+          }
+        >
+          <StatGrid
+            cols="grid-cols-2 sm:grid-cols-3 lg:grid-cols-6"
+            items={[
+              { label: "F", value: fmt(anova.f, 3), accent: "text-sky-300" },
+              {
+                label: "p",
+                value:
+                  anova.p < 0.001 ? "< 0.001" : fmt(anova.p, 4),
+                accent: anova.significant ? "text-emerald-300" : undefined,
+              },
+              {
+                label: "df",
+                value: `${anova.dfBetween}, ${anova.dfWithin}`,
+              },
+              {
+                label: "η²",
+                value: fmt(anova.etaSquared, 3),
+                hint: "effect size",
+              },
+              { label: "MS between", value: fmt(anova.msBetween) },
+              { label: "MS within", value: fmt(anova.msWithin) },
+            ]}
+          />
+          {postHoc.length > 0 && (
+            <div className="overflow-auto border-t border-slate-800/70">
+              <table className="w-full text-sm">
+                <thead className="text-left text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                  <tr className="border-b border-slate-800">
+                    <th className="px-5 py-2.5">Post-hoc (Bonferroni)</th>
+                    <th className="px-5 py-2.5 text-right">Δ Mean</th>
+                    <th className="px-5 py-2.5 text-right">t</th>
+                    <th className="px-5 py-2.5 text-right">p (raw)</th>
+                    <th className="px-5 py-2.5 text-right">p (adj.)</th>
+                    <th className="px-5 py-2.5">Result</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {postHoc.map((p, i) => (
+                    <tr
+                      key={i}
+                      className="border-t border-slate-800/60 hover:bg-slate-800/30"
+                    >
+                      <td className="px-5 py-2 text-slate-200">
+                        {p.a} <span className="text-slate-500">vs</span> {p.b}
+                      </td>
+                      <td className="tabular px-5 py-2 text-right text-slate-300">
+                        {fmt(p.meanDiff)}
+                      </td>
+                      <td className="tabular px-5 py-2 text-right text-slate-400">
+                        {fmt(p.t, 2)}
+                      </td>
+                      <td className="tabular px-5 py-2 text-right text-slate-400">
+                        {p.pRaw < 0.001 ? "< 0.001" : fmt(p.pRaw, 3)}
+                      </td>
+                      <td className="tabular px-5 py-2 text-right font-medium text-slate-200">
+                        {p.pAdjusted < 0.001 ? "< 0.001" : fmt(p.pAdjusted, 3)}
+                      </td>
+                      <td className="px-5 py-2">
+                        <Badge tone={p.significant ? "emerald" : "slate"}>
+                          {p.significant ? "Significant" : "n.s."}
+                        </Badge>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          <p className="px-5 py-3 text-[11px] text-slate-500">
+            Post-hoc pairwise comparisons use the pooled within-group variance
+            (MS within) with a Bonferroni correction across all {postHoc.length}{" "}
+            pairs.
+          </p>
+        </Panel>
+      )}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Panel title="Mean ± SEM" subtitle="Group means with standard error">
@@ -322,65 +495,75 @@ export default function ComparisonView({
       {pairs.length > 0 && (
         <Panel
           title="Pairwise comparison"
-          subtitle="Welch's unequal-variance t-test · Cohen's d effect size"
+          subtitle={
+            testType === "welch"
+              ? "Welch's unequal-variance t-test · Cohen's d effect size"
+              : "Mann–Whitney U · nonparametric rank-sum test"
+          }
+          actions={
+            <Segmented
+              value={testType}
+              onChange={setTestType}
+              options={[
+                { value: "welch", label: "Welch t" },
+                { value: "mw", label: "Mann–Whitney" },
+              ]}
+            />
+          }
         >
           <div className="overflow-auto">
             <table className="w-full text-sm">
               <thead className="text-left text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                 <tr className="border-b border-slate-800">
                   <th className="px-5 py-2.5">Comparison</th>
-                  <th className="px-5 py-2.5 text-right">Δ Mean</th>
-                  <th className="px-5 py-2.5 text-right">t</th>
-                  <th className="px-5 py-2.5 text-right">df</th>
+                  <th className="px-5 py-2.5 text-right">
+                    {testType === "welch" ? "Δ Mean" : "Δ Median"}
+                  </th>
+                  <th className="px-5 py-2.5 text-right">
+                    {pairs[0]?.statLabel ?? "stat"}
+                  </th>
                   <th className="px-5 py-2.5 text-right">p</th>
-                  <th className="px-5 py-2.5 text-right">Cohen&apos;s d</th>
+                  <th className="px-5 py-2.5 text-right">
+                    {pairs[0]?.effectLabel ?? "effect"}
+                  </th>
                   <th className="px-5 py-2.5">Result</th>
                 </tr>
               </thead>
               <tbody>
-                {pairs.map((p, i) => {
-                  const r = p.result;
-                  return (
-                    <tr
-                      key={i}
-                      className="border-t border-slate-800/60 hover:bg-slate-800/30"
-                    >
-                      <td className="px-5 py-2 text-slate-200">
-                        {p.a} <span className="text-slate-500">vs</span> {p.b}
-                      </td>
-                      <td className="tabular px-5 py-2 text-right text-slate-300">
-                        {r ? fmt(r.meanDiff) : "—"}
-                      </td>
-                      <td className="tabular px-5 py-2 text-right text-slate-400">
-                        {r ? fmt(r.t, 2) : "—"}
-                      </td>
-                      <td className="tabular px-5 py-2 text-right text-slate-400">
-                        {r ? fmt(r.df, 1) : "—"}
-                      </td>
-                      <td className="tabular px-5 py-2 text-right font-medium text-slate-200">
-                        {r ? (r.p < 0.001 ? "< 0.001" : fmt(r.p, 3)) : "—"}
-                      </td>
-                      <td className="tabular px-5 py-2 text-right text-slate-400">
-                        {r ? fmt(r.cohensD, 2) : "—"}
-                      </td>
-                      <td className="px-5 py-2">
-                        {r ? (
-                          <Badge tone={r.significant ? "emerald" : "slate"}>
-                            {r.significant ? "Significant" : "n.s."}
-                          </Badge>
-                        ) : (
-                          <span className="text-slate-500">—</span>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
+                {pairs.map((p, i) => (
+                  <tr
+                    key={i}
+                    className="border-t border-slate-800/60 hover:bg-slate-800/30"
+                  >
+                    <td className="px-5 py-2 text-slate-200">
+                      {p.a} <span className="text-slate-500">vs</span> {p.b}
+                    </td>
+                    <td className="tabular px-5 py-2 text-right text-slate-300">
+                      {p.meanDiff == null ? "—" : fmt(p.meanDiff)}
+                    </td>
+                    <td className="tabular px-5 py-2 text-right text-slate-400">
+                      {p.stat == null ? "—" : fmt(p.stat, 2)}
+                    </td>
+                    <td className="tabular px-5 py-2 text-right font-medium text-slate-200">
+                      {p.p == null ? "—" : p.p < 0.001 ? "< 0.001" : fmt(p.p, 3)}
+                    </td>
+                    <td className="tabular px-5 py-2 text-right text-slate-400">
+                      {p.effect == null ? "—" : fmt(p.effect, 2)}
+                    </td>
+                    <td className="px-5 py-2">
+                      <Badge tone={p.significant ? "emerald" : "slate"}>
+                        {p.significant ? "Significant" : "n.s."}
+                      </Badge>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
           <p className="px-5 py-3 text-[11px] text-slate-500">
-            Significance assessed at α = 0.05 (two-tailed). p-values are not
-            corrected for multiple comparisons.
+            Significance assessed at α = 0.05 (two-tailed). Pairwise p-values
+            here are uncorrected — see the ANOVA post-hoc table for
+            multiplicity-adjusted comparisons.
           </p>
         </Panel>
       )}

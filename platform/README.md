@@ -11,15 +11,26 @@ delivered as a clean, OneDrive-style web app.
 - **Data import** — drag-and-drop CSV/TSV with automatic delimiter detection,
   header detection and per-column type inference. (Connectors for Sheets / SQL /
   instrument APIs are stubbed for a future server-backed release.)
-- **Four core tools**, each backed by a real statistics engine:
-  - **Overview** — dataset summary + per-column stats + Pearson correlation matrix
+- **Analysis tools**, each backed by a real statistics engine (open the
+  **Analyze** menu in a workspace to launch any of them, Prism/JMP-style):
+  - **Charts** — scatter/line + distribution histogram, box plot and Pearson
+    correlation matrix, with linear/polynomial fit, regression annotation,
+    **log-scale axes** and high-res PNG export
+  - **Curve Fit** — *nonlinear regression* (Levenberg–Marquardt) with a model
+    library: **dose-response 4PL/5PL (EC50/IC50 + Hill slope)**, exponential
+    growth/decay (half-life, doubling time), **Michaelis–Menten (Vmax/Km)**,
+    logistic growth and Gaussian peaks. Reports parameter ± SE with 95% CI,
+    derived quantities, R²/adjusted-R²/RMSE, a residuals plot, a 95% prediction
+    band and an automatic model-comparison ranking.
   - **Statistics** — mean/median/std/SEM/variance/quartiles/IQR/skew/kurtosis/CV,
-    histogram and box plot
-  - **Outliers** — IQR (Tukey), Z-score and modified Z-score (MAD) methods with
-    a bounded scatter plot and a flagged-values table
-  - **Trends** — OLS linear regression with R², moving average and Mann–Kendall τ
-  - **Visualize** — chart builder (line/scatter/bar/histogram/box) with curve
-    fitting (linear / polynomial) and high-res PNG export
+    histogram and box plot, plus per-column summary and publication report export
+  - **Anomalies** — rolling z-score and two-sided CUSUM change-point detection
+  - **Compare** — across datasets: group means ± SEM with error bars, box plots,
+    **one-way ANOVA with η² + Bonferroni post-hoc**, pairwise **Welch t-test or
+    Mann–Whitney U** (toggle), and per-group **D'Agostino–Pearson normality**
+  - **Longitudinal** — track a variable's mean across datasets over time
+  - **Data** — spreadsheet view with column-type badges
+  - Outlier detection (IQR / Z-score / MAD) feeds Charts, Statistics & Anomalies
 
 ## Stack
 

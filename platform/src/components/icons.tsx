@@ -172,3 +172,23 @@ export const IconUser = (p: P) => (
     <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
   </svg>
 );
+
+export const IconCurve = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M4 20V4" />
+    <path d="M4 20h16" />
+    <path d="M5 17c4 0 4-9 8-9s4 5 6 5" />
+  </svg>
+);
+
+export const IconSigma = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M17 5H7l5 7-5 7h10" />
+  </svg>
+);
+
+export const IconMenu = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M4 7h16M4 12h16M4 17h16" />
+  </svg>
+);

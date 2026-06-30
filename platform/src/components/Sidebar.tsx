@@ -8,6 +8,7 @@ import SessionMenu from "@/components/SessionMenu";
 import {
   IconChart,
   IconClock,
+  IconCurve,
   IconGrid,
   IconHome,
   IconLayers,
@@ -15,13 +16,16 @@ import {
   IconLogo,
   IconPulse,
   IconShield,
+  IconSigma,
   IconStats,
   IconTrend,
 } from "@/components/icons";
 
 const TOOLS = [
   { label: "Charts & visualize", icon: IconChart },
+  { label: "Curve fitting", icon: IconCurve },
   { label: "Statistics", icon: IconStats },
+  { label: "ANOVA & t-tests", icon: IconSigma },
   { label: "Compare datasets", icon: IconLayers },
   { label: "Longitudinal", icon: IconClock },
   { label: "Anomaly detection", icon: IconPulse },

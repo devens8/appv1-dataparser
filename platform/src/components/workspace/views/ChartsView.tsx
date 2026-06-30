@@ -29,8 +29,16 @@ export default function ChartsView({
   const [fit, setFit] = useState<FitType>("linear");
   const [showMA, setShowMA] = useState(true);
   const [bins, setBins] = useState(16);
+  const [logX, setLogX] = useState(false);
+  const [logY, setLogY] = useState(false);
 
   const { x, y, xCol, yCol, trend, outlierSet } = analysis;
+
+  // Log axes are only meaningful when every value on that axis is positive.
+  const canLogX = x.length > 0 && x.every((v) => v > 0);
+  const canLogY = y.length > 0 && y.every((v) => v > 0);
+  const useLogX = logX && canLogX;
+  const useLogY = logY && canLogY;
 
   // 1 — Relationship plot (Y vs X) with regression / fit / MA / outliers.
   const relation = useMemo<EChartsOption>(() => {
@@ -105,6 +113,14 @@ export default function ChartsView({
       } as SeriesOption);
     }
 
+    const regFit = trend.fit;
+    const annotation =
+      regFit && fit === "linear"
+        ? `y = ${fmt(regFit.slope, 3)}x ${
+            regFit.intercept >= 0 ? "+" : "−"
+          } ${fmt(Math.abs(regFit.intercept), 3)}   ·   R² = ${fmt(regFit.r2, 3)}`
+        : null;
+
     return {
       tooltip: { trigger: mainType === "line" ? "axis" : "item" },
       legend: {
@@ -113,10 +129,26 @@ export default function ChartsView({
         inactiveColor: "#475569",
       },
       grid: { left: 56, right: 24, top: 40, bottom: 48, containLabel: true },
+      ...(annotation
+        ? {
+            graphic: [
+              {
+                type: "text",
+                right: 28,
+                top: 30,
+                style: {
+                  text: annotation,
+                  fill: "#fbbf24",
+                  font: '11px ui-monospace, "SF Mono", Menlo, monospace',
+                },
+              },
+            ],
+          }
+        : {}),
       xAxis: {
-        type: "value",
+        type: useLogX ? "log" : "value",
         scale: true,
-        name: xCol?.name ?? "Index",
+        name: `${xCol?.name ?? "Index"}${useLogX ? " (log)" : ""}`,
         nameLocation: "middle",
         nameGap: 30,
         nameTextStyle: { color: "#cbd5e1", fontSize: 12 },
@@ -125,16 +157,16 @@ export default function ChartsView({
         axisLine: AX_LINE,
       },
       yAxis: {
-        type: "value",
+        type: useLogY ? "log" : "value",
         scale: true,
-        name: yCol?.name,
+        name: `${yCol?.name ?? ""}${useLogY ? " (log)" : ""}`,
         nameTextStyle: { color: "#cbd5e1", fontSize: 12 },
         splitLine: SPLIT,
         axisLabel: AX_LABEL,
       },
       series,
     } as EChartsOption;
-  }, [x, y, mainType, fit, showMA, trend, xCol, yCol, outlierSet]);
+  }, [x, y, mainType, fit, showMA, trend, xCol, yCol, outlierSet, useLogX, useLogY]);
 
   // 2 — Distribution histogram of Y.
   const histogram = useMemo<EChartsOption | null>(() => {
@@ -299,6 +331,36 @@ export default function ChartsView({
                 className="accent-sky-500"
               />
               Moving avg
+            </label>
+            <label
+              className={`flex items-center gap-2 pb-1.5 text-xs font-medium ${
+                canLogX ? "text-slate-400" : "cursor-not-allowed text-slate-600"
+              }`}
+              title={canLogX ? "" : "Log X needs all X values > 0"}
+            >
+              <input
+                type="checkbox"
+                checked={useLogX}
+                disabled={!canLogX}
+                onChange={(e) => setLogX(e.target.checked)}
+                className="accent-sky-500"
+              />
+              Log X
+            </label>
+            <label
+              className={`flex items-center gap-2 pb-1.5 text-xs font-medium ${
+                canLogY ? "text-slate-400" : "cursor-not-allowed text-slate-600"
+              }`}
+              title={canLogY ? "" : "Log Y needs all Y values > 0"}
+            >
+              <input
+                type="checkbox"
+                checked={useLogY}
+                disabled={!canLogY}
+                onChange={(e) => setLogY(e.target.checked)}
+                className="accent-sky-500"
+              />
+              Log Y
             </label>
           </div>
         }
