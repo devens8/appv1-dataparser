@@ -281,11 +281,11 @@ export default function ComparisonView({
 
   if (workspace.datasets.length < 2) {
     return (
-      <div className="grid-bg flex flex-col items-center justify-center rounded-sm border border-dashed border-zinc-700 bg-zinc-900/30 py-20 text-center">
-        <h3 className="text-sm font-semibold text-zinc-200">
+      <div className="grid-bg flex flex-col items-center justify-center rounded-sm border border-dashed border-line bg-panel/30 py-20 text-center">
+        <h3 className="text-sm font-semibold text-fg">
           Add a second dataset to compare
         </h3>
-        <p className="mt-1 max-w-sm text-sm text-zinc-400">
+        <p className="mt-1 max-w-sm text-sm text-fgmuted">
           Comparison runs across the datasets in this workspace. Import at
           least two datasets sharing a numeric column.
         </p>
@@ -295,11 +295,11 @@ export default function ComparisonView({
 
   if (sharedColumns.length === 0) {
     return (
-      <div className="grid-bg flex flex-col items-center justify-center rounded-sm border border-dashed border-zinc-700 bg-zinc-900/30 py-20 text-center">
-        <h3 className="text-sm font-semibold text-zinc-200">
+      <div className="grid-bg flex flex-col items-center justify-center rounded-sm border border-dashed border-line bg-panel/30 py-20 text-center">
+        <h3 className="text-sm font-semibold text-fg">
           No numeric columns to compare
         </h3>
-        <p className="mt-1 max-w-sm text-sm text-zinc-400">
+        <p className="mt-1 max-w-sm text-sm text-fgmuted">
           None of the datasets in this workspace contain numeric columns.
         </p>
       </div>
@@ -325,8 +325,8 @@ export default function ComparisonView({
       >
         <div className="overflow-auto">
           <table className="w-full text-sm">
-            <thead className="text-left text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
-              <tr className="border-b border-zinc-800">
+            <thead className="text-left text-[11px] font-semibold uppercase tracking-wide text-fgsubtle">
+              <tr className="border-b border-line">
                 <th className="px-5 py-2.5">Dataset</th>
                 <th className="px-5 py-2.5 text-right">N</th>
                 <th className="px-5 py-2.5 text-right">Mean</th>
@@ -342,39 +342,39 @@ export default function ComparisonView({
               {series.map((s, si) => (
                 <tr
                   key={s.id}
-                  className="border-t border-zinc-800/60 hover:bg-zinc-800/30"
+                  className="border-t border-line/60 hover:bg-panel2/30"
                 >
-                  <td className="px-5 py-2 font-medium text-zinc-200">
+                  <td className="px-5 py-2 font-medium text-fg">
                     <span className="mr-2 inline-block h-2.5 w-2.5 rounded-full align-middle"
                       style={{ background: s.color }} />
                     {s.name}
                   </td>
-                  <td className="tabular px-5 py-2 text-right text-zinc-400">
+                  <td className="tabular px-5 py-2 text-right text-fgmuted">
                     {s.stats ? fmtInt(s.stats.count) : "—"}
                   </td>
-                  <td className="tabular px-5 py-2 text-right font-medium text-orange-300">
+                  <td className="tabular px-5 py-2 text-right font-medium text-accent">
                     {fmt(s.stats?.mean)}
                   </td>
-                  <td className="tabular px-5 py-2 text-right text-zinc-400">
+                  <td className="tabular px-5 py-2 text-right text-fgmuted">
                     {fmt(s.stats?.sem)}
                   </td>
-                  <td className="tabular px-5 py-2 text-right text-zinc-400">
+                  <td className="tabular px-5 py-2 text-right text-fgmuted">
                     {fmt(s.stats?.std)}
                   </td>
-                  <td className="tabular px-5 py-2 text-right text-zinc-400">
+                  <td className="tabular px-5 py-2 text-right text-fgmuted">
                     {fmt(s.stats?.median)}
                   </td>
-                  <td className="tabular px-5 py-2 text-right text-zinc-400">
+                  <td className="tabular px-5 py-2 text-right text-fgmuted">
                     {fmt(s.stats?.min)}
                   </td>
-                  <td className="tabular px-5 py-2 text-right text-zinc-400">
+                  <td className="tabular px-5 py-2 text-right text-fgmuted">
                     {fmt(s.stats?.max)}
                   </td>
                   <td className="px-5 py-2">
                     {(() => {
                       const nr = normality[si]?.result;
                       if (!nr)
-                        return <span className="text-zinc-600">n&lt;8</span>;
+                        return <span className="text-fgsubtle">n&lt;8</span>;
                       return (
                         <Badge tone={nr.normal ? "emerald" : "amber"}>
                           {nr.normal ? "Normal" : "Non-normal"}
@@ -387,7 +387,7 @@ export default function ComparisonView({
             </tbody>
           </table>
         </div>
-        <p className="px-5 py-2.5 text-[11px] text-zinc-500">
+        <p className="px-5 py-2.5 text-[11px] text-fgsubtle">
           Normality by D&apos;Agostino–Pearson omnibus K² (α = 0.05). Non-normal
           groups favour the nonparametric Mann–Whitney test below.
         </p>
@@ -406,7 +406,7 @@ export default function ComparisonView({
           <StatGrid
             cols="grid-cols-2 sm:grid-cols-3 lg:grid-cols-6"
             items={[
-              { label: "F", value: fmt(anova.f, 3), accent: "text-orange-300" },
+              { label: "F", value: fmt(anova.f, 3), accent: "text-accent" },
               {
                 label: "p",
                 value:
@@ -427,10 +427,10 @@ export default function ComparisonView({
             ]}
           />
           {postHoc.length > 0 && (
-            <div className="overflow-auto border-t border-zinc-800/70">
+            <div className="overflow-auto border-t border-line/70">
               <table className="w-full text-sm">
-                <thead className="text-left text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
-                  <tr className="border-b border-zinc-800">
+                <thead className="text-left text-[11px] font-semibold uppercase tracking-wide text-fgsubtle">
+                  <tr className="border-b border-line">
                     <th className="px-5 py-2.5">Post-hoc (Bonferroni)</th>
                     <th className="px-5 py-2.5 text-right">Δ Mean</th>
                     <th className="px-5 py-2.5 text-right">t</th>
@@ -443,21 +443,21 @@ export default function ComparisonView({
                   {postHoc.map((p, i) => (
                     <tr
                       key={i}
-                      className="border-t border-zinc-800/60 hover:bg-zinc-800/30"
+                      className="border-t border-line/60 hover:bg-panel2/30"
                     >
-                      <td className="px-5 py-2 text-zinc-200">
-                        {p.a} <span className="text-zinc-500">vs</span> {p.b}
+                      <td className="px-5 py-2 text-fg">
+                        {p.a} <span className="text-fgsubtle">vs</span> {p.b}
                       </td>
-                      <td className="tabular px-5 py-2 text-right text-zinc-300">
+                      <td className="tabular px-5 py-2 text-right text-fgmuted">
                         {fmt(p.meanDiff)}
                       </td>
-                      <td className="tabular px-5 py-2 text-right text-zinc-400">
+                      <td className="tabular px-5 py-2 text-right text-fgmuted">
                         {fmt(p.t, 2)}
                       </td>
-                      <td className="tabular px-5 py-2 text-right text-zinc-400">
+                      <td className="tabular px-5 py-2 text-right text-fgmuted">
                         {p.pRaw < 0.001 ? "< 0.001" : fmt(p.pRaw, 3)}
                       </td>
-                      <td className="tabular px-5 py-2 text-right font-medium text-zinc-200">
+                      <td className="tabular px-5 py-2 text-right font-medium text-fg">
                         {p.pAdjusted < 0.001 ? "< 0.001" : fmt(p.pAdjusted, 3)}
                       </td>
                       <td className="px-5 py-2">
@@ -471,7 +471,7 @@ export default function ComparisonView({
               </table>
             </div>
           )}
-          <p className="px-5 py-3 text-[11px] text-zinc-500">
+          <p className="px-5 py-3 text-[11px] text-fgsubtle">
             Post-hoc pairwise comparisons use the pooled within-group variance
             (MS within) with a Bonferroni correction across all {postHoc.length}{" "}
             pairs.
@@ -513,8 +513,8 @@ export default function ComparisonView({
         >
           <div className="overflow-auto">
             <table className="w-full text-sm">
-              <thead className="text-left text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
-                <tr className="border-b border-zinc-800">
+              <thead className="text-left text-[11px] font-semibold uppercase tracking-wide text-fgsubtle">
+                <tr className="border-b border-line">
                   <th className="px-5 py-2.5">Comparison</th>
                   <th className="px-5 py-2.5 text-right">
                     {testType === "welch" ? "Δ Mean" : "Δ Median"}
@@ -533,21 +533,21 @@ export default function ComparisonView({
                 {pairs.map((p, i) => (
                   <tr
                     key={i}
-                    className="border-t border-zinc-800/60 hover:bg-zinc-800/30"
+                    className="border-t border-line/60 hover:bg-panel2/30"
                   >
-                    <td className="px-5 py-2 text-zinc-200">
-                      {p.a} <span className="text-zinc-500">vs</span> {p.b}
+                    <td className="px-5 py-2 text-fg">
+                      {p.a} <span className="text-fgsubtle">vs</span> {p.b}
                     </td>
-                    <td className="tabular px-5 py-2 text-right text-zinc-300">
+                    <td className="tabular px-5 py-2 text-right text-fgmuted">
                       {p.meanDiff == null ? "—" : fmt(p.meanDiff)}
                     </td>
-                    <td className="tabular px-5 py-2 text-right text-zinc-400">
+                    <td className="tabular px-5 py-2 text-right text-fgmuted">
                       {p.stat == null ? "—" : fmt(p.stat, 2)}
                     </td>
-                    <td className="tabular px-5 py-2 text-right font-medium text-zinc-200">
+                    <td className="tabular px-5 py-2 text-right font-medium text-fg">
                       {p.p == null ? "—" : p.p < 0.001 ? "< 0.001" : fmt(p.p, 3)}
                     </td>
-                    <td className="tabular px-5 py-2 text-right text-zinc-400">
+                    <td className="tabular px-5 py-2 text-right text-fgmuted">
                       {p.effect == null ? "—" : fmt(p.effect, 2)}
                     </td>
                     <td className="px-5 py-2">
@@ -560,7 +560,7 @@ export default function ComparisonView({
               </tbody>
             </table>
           </div>
-          <p className="px-5 py-3 text-[11px] text-zinc-500">
+          <p className="px-5 py-3 text-[11px] text-fgsubtle">
             Significance assessed at α = 0.05 (two-tailed). Pairwise p-values
             here are uncorrected — see the ANOVA post-hoc table for
             multiplicity-adjusted comparisons.

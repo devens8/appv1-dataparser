@@ -2,8 +2,22 @@ import type { Config } from "tailwindcss";
 
 const config: Config = {
   content: ["./src/**/*.{ts,tsx}"],
+  darkMode: "class",
   theme: {
     extend: {
+      colors: {
+        // Semantic tokens driven by CSS variables so the whole UI re-themes
+        // between dark and light. The rgb(var / <alpha-value>) form keeps
+        // Tailwind's /opacity modifiers working.
+        base: "rgb(var(--c-base) / <alpha-value>)",
+        panel: "rgb(var(--c-panel) / <alpha-value>)",
+        panel2: "rgb(var(--c-panel2) / <alpha-value>)",
+        line: "rgb(var(--c-line) / <alpha-value>)",
+        fg: "rgb(var(--c-fg) / <alpha-value>)",
+        fgmuted: "rgb(var(--c-fgmuted) / <alpha-value>)",
+        fgsubtle: "rgb(var(--c-fgsubtle) / <alpha-value>)",
+        accent: "rgb(var(--c-accent) / <alpha-value>)",
+      },
       fontFamily: {
         sans: [
           "ui-sans-serif",
@@ -23,20 +37,6 @@ const config: Config = {
           "Consolas",
           "monospace",
         ],
-      },
-      colors: {
-        brand: {
-          50: "#eef2ff",
-          100: "#ffedd5",
-          200: "#fed7aa",
-          300: "#fdba74",
-          400: "#fb923c",
-          500: "#f97316",
-          600: "#ea580c",
-          700: "#c2410c",
-          800: "#9a3412",
-          900: "#7c2d12",
-        },
       },
       boxShadow: {
         glow: "0 0 0 1px rgba(249,115,22,0.1), 0 14px 34px -18px rgba(0,0,0,0.9)",

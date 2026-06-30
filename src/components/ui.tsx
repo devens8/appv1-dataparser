@@ -27,15 +27,15 @@ export function Panel({
       } ${className}`}
     >
       {(title || actions) && (
-        <header className="flex shrink-0 items-center justify-between gap-3 border-b border-zinc-800/80 px-3.5 py-2">
+        <header className="flex shrink-0 items-center justify-between gap-3 border-b border-line/80 px-3.5 py-2">
           <div className="min-w-0">
             {title && (
-              <h3 className="truncate text-[12px] font-semibold tracking-tight text-zinc-100">
+              <h3 className="truncate text-[12px] font-semibold tracking-tight text-fg">
                 {title}
               </h3>
             )}
             {subtitle && (
-              <p className="mt-0.5 truncate text-[10px] text-zinc-400">
+              <p className="mt-0.5 truncate text-[10px] text-fgmuted">
                 {subtitle}
               </p>
             )}
@@ -61,21 +61,21 @@ export function StatGrid({
   cols?: string;
 }) {
   return (
-    <div className={`grid ${cols} divide-x divide-y divide-zinc-800/70`}>
+    <div className={`grid ${cols} divide-x divide-y divide-line/70`}>
       {items.map((it, i) => (
         <div key={i} className="px-3.5 py-2">
-          <div className="text-[9px] font-semibold uppercase tracking-wider text-zinc-500">
+          <div className="text-[9px] font-semibold uppercase tracking-wider text-fgsubtle">
             {it.label}
           </div>
           <div
             className={`tabular mt-0.5 text-base font-semibold leading-none ${
-              it.accent ?? "text-zinc-100"
+              it.accent ?? "text-fg"
             }`}
           >
             {it.value}
           </div>
           {it.hint && (
-            <div className="mt-0.5 text-[10px] text-zinc-500">{it.hint}</div>
+            <div className="mt-0.5 text-[10px] text-fgsubtle">{it.hint}</div>
           )}
         </div>
       ))}
@@ -92,7 +92,7 @@ export function Field({
 }) {
   return (
     <label className="flex flex-col gap-1">
-      <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+      <span className="text-[10px] font-semibold uppercase tracking-wider text-fgsubtle">
         {label}
       </span>
       {children}
@@ -115,7 +115,7 @@ export function Select({
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className={`rounded-sm border border-zinc-700 bg-zinc-900/80 px-3 py-1.5 text-sm text-zinc-200 outline-none transition-colors focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 ${className}`}
+      className={`rounded-sm border border-line bg-panel/80 px-3 py-1.5 text-sm text-fg outline-none transition-colors focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 ${className}`}
     >
       {children}
     </select>
@@ -132,15 +132,15 @@ export function Segmented<T extends string>({
   onChange: (v: T) => void;
 }) {
   return (
-    <div className="inline-flex rounded-sm border border-zinc-800 bg-zinc-900/70 p-0.5">
+    <div className="inline-flex rounded-sm border border-line bg-panel/70 p-0.5">
       {options.map((o) => (
         <button
           key={o.value}
           onClick={() => onChange(o.value)}
           className={`rounded-sm px-3 py-1.5 text-xs font-medium transition-all ${
             value === o.value
-              ? "bg-orange-500/15 text-orange-300 shadow-[inset_0_0_0_1px_rgba(249,115,22,0.3)]"
-              : "text-zinc-400 hover:text-zinc-200"
+              ? "bg-orange-500/15 text-accent shadow-[inset_0_0_0_1px_rgba(249,115,22,0.3)]"
+              : "text-fgmuted hover:text-fg"
           }`}
         >
           {o.label}
@@ -158,9 +158,9 @@ export function Badge({
   tone?: "slate" | "indigo" | "sky" | "emerald" | "amber" | "rose";
 }) {
   const tones: Record<string, string> = {
-    slate: "bg-zinc-700/40 text-zinc-300 ring-zinc-600/40",
-    indigo: "bg-orange-500/15 text-orange-300 ring-orange-500/30",
-    sky: "bg-orange-500/15 text-orange-300 ring-orange-500/30",
+    slate: "bg-panel2/40 text-fgmuted ring-line/40",
+    indigo: "bg-orange-500/15 text-accent ring-orange-500/30",
+    sky: "bg-orange-500/15 text-accent ring-orange-500/30",
     emerald: "bg-emerald-500/15 text-emerald-300 ring-emerald-500/30",
     amber: "bg-amber-500/15 text-amber-300 ring-amber-500/30",
     rose: "bg-rose-500/15 text-rose-300 ring-rose-500/30",

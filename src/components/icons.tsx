@@ -205,3 +205,42 @@ export const IconArrowRight = (p: P) => (
     <path d="M5 12h14M13 6l6 6-6 6" />
   </svg>
 );
+
+export const IconSun = (p: P) => (
+  <svg {...base} {...p}>
+    <circle cx="12" cy="12" r="4" />
+    <path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19" />
+  </svg>
+);
+
+export const IconMoon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M21 12.8A9 9 0 1111.2 3 7 7 0 0021 12.8z" />
+  </svg>
+);
+
+export const IconSidebar = (p: P) => (
+  <svg {...base} {...p}>
+    <rect x="3" y="4" width="18" height="16" rx="2" />
+    <path d="M9 4v16" />
+  </svg>
+);
+
+export const IconChevronLeft = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M15 6l-6 6 6 6" />
+  </svg>
+);
+
+export const IconChevronRight = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M9 6l6 6-6 6" />
+  </svg>
+);
+
+export const IconBeaker = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M9 3h6M10 3v6l-5 9a2 2 0 002 3h10a2 2 0 002-3l-5-9V3" />
+    <path d="M7.5 14h9" />
+  </svg>
+);

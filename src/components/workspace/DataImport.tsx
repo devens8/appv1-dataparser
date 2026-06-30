@@ -71,7 +71,7 @@ export default function DataImport({
       <>
         <button
           onClick={() => inputRef.current?.click()}
-          className="flex items-center gap-2 rounded-sm border border-zinc-700 bg-zinc-900/70 px-3.5 py-2 text-sm font-medium text-zinc-200 transition-colors hover:border-orange-500/60 hover:text-orange-300"
+          className="flex items-center gap-2 rounded-sm border border-line bg-panel/70 px-3.5 py-2 text-sm font-medium text-fg transition-colors hover:border-orange-500/60 hover:text-accent"
         >
           <IconUpload className="h-4 w-4" width={16} height={16} />
           Import CSV
@@ -110,21 +110,21 @@ export default function DataImport({
         className={`grid-bg flex cursor-pointer flex-col items-center justify-center rounded-sm border-2 border-dashed px-8 py-16 text-center transition-colors ${
           dragging
             ? "border-orange-500 bg-orange-500/10"
-            : "border-zinc-700 bg-zinc-900/30 hover:border-orange-500/60 hover:bg-orange-500/5"
+            : "border-line bg-panel/30 hover:border-orange-500/60 hover:bg-orange-500/5"
         }`}
       >
-        <div className="flex h-14 w-14 items-center justify-center rounded-sm bg-orange-500/10 text-orange-300 ring-1 ring-inset ring-orange-500/30">
+        <div className="flex h-14 w-14 items-center justify-center rounded-sm bg-orange-500/10 text-accent ring-1 ring-inset ring-orange-500/30">
           <IconUpload className="h-7 w-7" width={28} height={28} />
         </div>
-        <h3 className="mt-5 text-lg font-semibold text-zinc-100">
+        <h3 className="mt-5 text-lg font-semibold text-fg">
           Add data to this workspace
         </h3>
-        <p className="mt-1 max-w-md text-sm text-zinc-400">
+        <p className="mt-1 max-w-md text-sm text-fgmuted">
           Drag and drop a CSV file here, or click to browse. Columns and types
           are detected automatically.
         </p>
         <div className="mt-5 flex items-center gap-3">
-          <span className="rounded-sm bg-orange-500/90 px-4 py-2 text-sm font-medium text-white shadow-[0_0_24px_-8px_rgba(249,115,22,0.9)]">
+          <span className="rounded-sm border border-orange-500/40 bg-orange-500/15 px-4 py-2 text-sm font-medium text-accent">
             Choose file
           </span>
           <button
@@ -132,7 +132,7 @@ export default function DataImport({
               e.stopPropagation();
               loadSample();
             }}
-            className="rounded-sm border border-zinc-700 bg-zinc-900/70 px-4 py-2 text-sm font-medium text-zinc-300 hover:border-zinc-500 hover:text-zinc-100"
+            className="rounded-sm border border-line bg-panel/70 px-4 py-2 text-sm font-medium text-fgmuted hover:border-line hover:text-fg"
           >
             Load sample dataset
           </button>
@@ -155,10 +155,10 @@ export default function DataImport({
       />
 
       <div className="mt-8">
-        <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">
+        <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-fgsubtle">
           <IconLink className="h-4 w-4" width={16} height={16} />
           Or connect a source
-          <span className="rounded bg-zinc-800 px-1.5 py-0.5 text-[9px] text-zinc-400">
+          <span className="rounded bg-panel2 px-1.5 py-0.5 text-[9px] text-fgmuted">
             Soon
           </span>
         </div>
@@ -166,10 +166,10 @@ export default function DataImport({
           {CONNECTORS.map((c) => (
             <div
               key={c.name}
-              className="cursor-not-allowed rounded-sm border border-zinc-800 bg-zinc-900/40 px-4 py-3.5 opacity-70"
+              className="cursor-not-allowed rounded-sm border border-line bg-panel/40 px-4 py-3.5 opacity-70"
             >
-              <div className="text-sm font-medium text-zinc-300">{c.name}</div>
-              <div className="text-xs text-zinc-500">{c.desc}</div>
+              <div className="text-sm font-medium text-fgmuted">{c.name}</div>
+              <div className="text-xs text-fgsubtle">{c.desc}</div>
             </div>
           ))}
         </div>

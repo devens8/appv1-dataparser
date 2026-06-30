@@ -95,7 +95,7 @@ export default function ChartsView({
           name: fit === "linear" ? "Linear fit" : `${fit} fit`,
           data: fitData,
           showSymbol: false,
-          lineStyle: { color: "#fbbf24", width: 2 },
+          lineStyle: { color: "#d97706", width: 2 },
           z: 5,
         } as SeriesOption);
       }
@@ -138,7 +138,7 @@ export default function ChartsView({
                 top: 30,
                 style: {
                   text: annotation,
-                  fill: "#fbbf24",
+                  fill: "#d97706",
                   font: '11px ui-monospace, "SF Mono", Menlo, monospace',
                 },
               },
@@ -188,6 +188,9 @@ export default function ChartsView({
       xAxis: {
         type: "category",
         data: labels,
+        name: yCol?.name,
+        nameLocation: "middle",
+        nameGap: 30,
         axisLabel: { ...AX_LABEL, fontSize: 10 },
         axisLine: AX_LINE,
       },
@@ -207,7 +210,7 @@ export default function ChartsView({
         },
       ],
     } as EChartsOption;
-  }, [analysis.stats, y, bins]);
+  }, [analysis.stats, y, bins, yCol]);
 
   // 3 — Box plot of Y with outlier dots.
   const boxplot = useMemo<EChartsOption | null>(() => {
@@ -325,7 +328,7 @@ export default function ChartsView({
                 <option value="poly2">Poly (2)</option>
                 <option value="poly3">Poly (3)</option>
               </Select>
-              <label className="flex items-center gap-1.5 text-[11px] font-medium text-zinc-400">
+              <label className="flex items-center gap-1.5 text-[11px] font-medium text-fgmuted">
                 <input
                   type="checkbox"
                   checked={showMA}
@@ -336,7 +339,7 @@ export default function ChartsView({
               </label>
               <label
                 className={`flex items-center gap-1.5 text-[11px] font-medium ${
-                  canLogX ? "text-zinc-400" : "cursor-not-allowed text-zinc-600"
+                  canLogX ? "text-fgmuted" : "cursor-not-allowed text-fgsubtle"
                 }`}
                 title={canLogX ? "" : "Log X needs all X values > 0"}
               >
@@ -351,7 +354,7 @@ export default function ChartsView({
               </label>
               <label
                 className={`flex items-center gap-1.5 text-[11px] font-medium ${
-                  canLogY ? "text-zinc-400" : "cursor-not-allowed text-zinc-600"
+                  canLogY ? "text-fgmuted" : "cursor-not-allowed text-fgsubtle"
                 }`}
                 title={canLogY ? "" : "Log Y needs all Y values > 0"}
               >

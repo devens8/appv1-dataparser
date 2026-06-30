@@ -37,7 +37,7 @@ const CHART_LABEL: Record<ChartSuggestion["chart"], string> = {
   bar: "Bar",
 };
 
-export default function AiInsights() {
+export default function AiInsights({ autoOpen = false }: { autoOpen?: boolean }) {
   const router = useRouter();
   const createWorkspace = useWorkspaceStore((s) => s.createWorkspace);
   const addDataset = useWorkspaceStore((s) => s.addDataset);
@@ -123,10 +123,18 @@ export default function AiInsights() {
         setError("Could not parse any columns from this file.");
         return;
       }
+      const name = file.name.replace(/\.[^.]+$/, "");
+      // On the landing page, dropping a file goes straight into a new workspace.
+      if (autoOpen) {
+        const wsId = createWorkspace(name, "Created from an uploaded file");
+        addDataset(wsId, name, parsed);
+        router.push(`/workspace/${wsId}`);
+        return;
+      }
       setRawText(text);
       setDataset({
         id: "preview",
-        name: file.name.replace(/\.[^.]+$/, ""),
+        name,
         createdAt: Date.now(),
         columns: parsed.columns,
         rows: parsed.rows,
@@ -173,16 +181,16 @@ export default function AiInsights() {
 
   return (
     <section className="surface glow animate-fade-in-up rounded-sm">
-      <header className="flex items-center justify-between gap-4 border-b border-zinc-800 px-5 py-3">
+      <header className="flex items-center justify-between gap-4 border-b border-line px-5 py-3">
         <div className="flex items-center gap-2.5">
-          <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-orange-500/15 text-orange-300 ring-1 ring-inset ring-orange-500/30">
+          <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-orange-500/15 text-accent ring-1 ring-inset ring-orange-500/30">
             <IconSparkle className="h-4.5 w-4.5" width={18} height={18} />
           </span>
           <div>
-            <h2 className="text-sm font-semibold tracking-tight text-zinc-100">
+            <h2 className="text-sm font-semibold tracking-tight text-fg">
               AI Insights
             </h2>
-            <p className="text-[11px] text-zinc-500">
+            <p className="text-[11px] text-fgsubtle">
               Drop a file for an instant summary and graphing suggestions
             </p>
           </div>
@@ -194,7 +202,7 @@ export default function AiInsights() {
               setAi(null);
               setError(null);
             }}
-            className="text-[11px] font-medium text-zinc-400 hover:text-orange-300"
+            className="text-[11px] font-medium text-fgmuted hover:text-accent"
           >
             Clear
           </button>
@@ -220,18 +228,18 @@ export default function AiInsights() {
             className={`grid-bg flex cursor-pointer flex-col items-center justify-center rounded-sm border-2 border-dashed px-6 py-10 text-center transition-colors ${
               dragging
                 ? "border-orange-500 bg-orange-500/10"
-                : "border-zinc-700 bg-zinc-900/40 hover:border-orange-500/60 hover:bg-orange-500/5"
+                : "border-line bg-panel/40 hover:border-orange-500/60 hover:bg-orange-500/5"
             }`}
           >
             <IconUpload
-              className="h-7 w-7 text-orange-300"
+              className="h-7 w-7 text-accent"
               width={28}
               height={28}
             />
-            <p className="mt-3 text-sm font-medium text-zinc-200">
+            <p className="mt-3 text-sm font-medium text-fg">
               Drop a CSV here, or click to browse
             </p>
-            <p className="mt-1 text-[11px] text-zinc-500">
+            <p className="mt-1 text-[11px] text-fgsubtle">
               Analysed in your browser — nothing is uploaded unless an AI key is
               configured.
             </p>
@@ -254,25 +262,25 @@ export default function AiInsights() {
       ) : (
         <div className="grid grid-cols-1 gap-0 lg:grid-cols-2">
           {/* Left: summary + suggestions */}
-          <div className="border-b border-zinc-800 p-4 lg:border-b-0 lg:border-r">
+          <div className="border-b border-line p-4 lg:border-b-0 lg:border-r">
             <div className="mb-2 flex items-center gap-2">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-fgsubtle">
                 Summary
               </span>
               {aiLoading && (
-                <span className="text-[10px] text-orange-300/80">analysing…</span>
+                <span className="text-[10px] text-accent/80">analysing…</span>
               )}
               {aiActive && (
-                <span className="rounded-sm bg-orange-500/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-orange-300 ring-1 ring-inset ring-orange-500/30">
+                <span className="rounded-sm bg-orange-500/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-accent ring-1 ring-inset ring-orange-500/30">
                   AI · {ai?.model?.replace("claude-", "") ?? "on"}
                 </span>
               )}
             </div>
-            <p className="text-[13px] leading-relaxed text-zinc-300">
+            <p className="text-[13px] leading-relaxed text-fgmuted">
               {aiActive ? ai?.summary : summary}
             </p>
 
-            <div className="mt-4 mb-2 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+            <div className="mt-4 mb-2 text-[10px] font-semibold uppercase tracking-wider text-fgsubtle">
               Suggested charts
             </div>
             <ul className="space-y-1.5">
@@ -280,7 +288,7 @@ export default function AiInsights() {
                 ? ai.suggestions.map((s, i) => (
                     <li
                       key={i}
-                      className="flex gap-2 text-[12px] leading-snug text-zinc-300"
+                      className="flex gap-2 text-[12px] leading-snug text-fgmuted"
                     >
                       <span className="mt-1 h-1 w-1 shrink-0 rounded-full bg-orange-400" />
                       {s}
@@ -291,11 +299,11 @@ export default function AiInsights() {
                       key={i}
                       className="flex items-start gap-2 text-[12px] leading-snug"
                     >
-                      <span className="mt-0.5 shrink-0 rounded-sm bg-zinc-800 px-1.5 py-0.5 text-[9px] font-semibold uppercase text-orange-300">
+                      <span className="mt-0.5 shrink-0 rounded-sm bg-panel2 px-1.5 py-0.5 text-[9px] font-semibold uppercase text-accent">
                         {CHART_LABEL[c.chart]}
                       </span>
-                      <span className="text-zinc-300">
-                        <span className="font-medium text-zinc-100">
+                      <span className="text-fgmuted">
+                        <span className="font-medium text-fg">
                           {c.title}.
                         </span>{" "}
                         {c.detail}
@@ -308,28 +316,28 @@ export default function AiInsights() {
           {/* Right: pre-selected preview plot */}
           <div className="p-4">
             <div className="mb-2 flex items-center justify-between">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-fgsubtle">
                 Suggested plot
               </span>
-              <span className="text-[10px] text-zinc-500">
+              <span className="text-[10px] text-fgsubtle">
                 {profile?.rows.toLocaleString()} × {profile?.cols}
               </span>
             </div>
             {preview ? (
               <Chart option={preview} height={210} />
             ) : (
-              <div className="flex h-[210px] items-center justify-center text-[12px] text-zinc-500">
+              <div className="flex h-[210px] items-center justify-center text-[12px] text-fgsubtle">
                 No numeric columns to preview.
               </div>
             )}
             {axes?.reason && (
-              <p className="mt-2 text-[11px] leading-snug text-zinc-500">
+              <p className="mt-2 text-[11px] leading-snug text-fgsubtle">
                 {axes.reason}
               </p>
             )}
             <button
               onClick={createFromFile}
-              className="mt-3 flex w-full items-center justify-center gap-2 rounded-sm bg-orange-500 px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-orange-400"
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-sm border border-orange-500/40 bg-orange-500/15 px-4 py-2 text-sm font-semibold text-accent transition-colors hover:bg-orange-500/25 hover:text-orange-100"
             >
               Open in a workspace
               <IconArrowRight className="h-4 w-4" width={16} height={16} />

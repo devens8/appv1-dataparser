@@ -20,8 +20,8 @@ import { IconDownload } from "@/components/icons";
 const DIRECTION: Record<string, { text: string; tone: string }> = {
   increasing: { text: "▲ Increasing", tone: "text-emerald-300" },
   decreasing: { text: "▼ Decreasing", tone: "text-rose-300" },
-  stable: { text: "→ Stable", tone: "text-zinc-300" },
-  insufficient: { text: "Insufficient", tone: "text-zinc-500" },
+  stable: { text: "→ Stable", tone: "text-fgmuted" },
+  insufficient: { text: "Insufficient", tone: "text-fgsubtle" },
 };
 
 export default function StatisticsView({
@@ -150,7 +150,7 @@ export default function StatisticsView({
 
   const descriptive: { label: string; value: string; accent?: string }[] = [
     { label: "N", value: stats ? fmtInt(stats.count) : "—" },
-    { label: "Mean", value: fmt(stats?.mean), accent: "text-orange-300" },
+    { label: "Mean", value: fmt(stats?.mean), accent: "text-accent" },
     { label: "Median", value: fmt(stats?.median) },
     { label: "Std Dev", value: fmt(stats?.std) },
     { label: "Std Error", value: fmt(stats?.sem) },
@@ -178,14 +178,14 @@ export default function StatisticsView({
             <div className="flex items-center gap-2">
               <button
                 onClick={exportReport}
-                className="flex items-center gap-1.5 rounded-sm border border-zinc-700 bg-zinc-900/60 px-2.5 py-1 text-[11px] font-medium text-zinc-200 transition-colors hover:border-orange-500/50 hover:text-orange-200"
+                className="flex items-center gap-1.5 rounded-sm border border-line bg-panel/60 px-2.5 py-1 text-[11px] font-medium text-fg transition-colors hover:border-orange-500/50 hover:text-accent"
               >
                 <IconDownload className="h-3.5 w-3.5" width={14} height={14} />
                 Report
               </button>
               <button
                 onClick={exportCSV}
-                className="flex items-center gap-1.5 rounded-sm border border-zinc-700 bg-zinc-900/60 px-2.5 py-1 text-[11px] font-medium text-zinc-200 transition-colors hover:border-orange-500/50 hover:text-orange-200"
+                className="flex items-center gap-1.5 rounded-sm border border-line bg-panel/60 px-2.5 py-1 text-[11px] font-medium text-fg transition-colors hover:border-orange-500/50 hover:text-accent"
               >
                 <IconDownload className="h-3.5 w-3.5" width={14} height={14} />
                 CSV
@@ -194,15 +194,15 @@ export default function StatisticsView({
           )
         }
       >
-        <div className="grid grid-cols-4 divide-x divide-y divide-zinc-800/60 border-t border-zinc-800/60 sm:grid-cols-8">
+        <div className="grid grid-cols-4 divide-x divide-y divide-line/60 border-t border-line/60 sm:grid-cols-8">
           {descriptive.map((it) => (
             <div key={it.label} className="px-3 py-1.5">
-              <div className="text-[9px] font-semibold uppercase tracking-wider text-zinc-500">
+              <div className="text-[9px] font-semibold uppercase tracking-wider text-fgsubtle">
                 {it.label}
               </div>
               <div
                 className={`tabular mt-0.5 text-sm font-semibold leading-none ${
-                  it.accent ?? "text-zinc-100"
+                  it.accent ?? "text-fg"
                 }`}
               >
                 {it.value}
@@ -249,9 +249,9 @@ export default function StatisticsView({
               ]}
             />
             {outliers.count > 0 && (
-              <div className="min-h-0 flex-1 overflow-auto border-t border-zinc-800/60">
+              <div className="min-h-0 flex-1 overflow-auto border-t border-line/60">
                 <table className="w-full text-[11px]">
-                  <thead className="sticky top-0 bg-zinc-950/95 text-left uppercase tracking-wide text-zinc-500 backdrop-blur">
+                  <thead className="sticky top-0 bg-base/95 text-left uppercase tracking-wide text-fgsubtle backdrop-blur">
                     <tr>
                       <th className="px-3 py-1 font-semibold">#</th>
                       <th className="px-3 py-1 text-right font-semibold">Value</th>
@@ -261,12 +261,12 @@ export default function StatisticsView({
                   </thead>
                   <tbody>
                     {outliers.indices.map((i) => (
-                      <tr key={i} className="border-t border-zinc-800/50">
-                        <td className="tabular px-3 py-0.5 text-zinc-500">{i + 1}</td>
-                        <td className="tabular px-3 py-0.5 text-right font-medium text-zinc-200">
+                      <tr key={i} className="border-t border-line/50">
+                        <td className="tabular px-3 py-0.5 text-fgsubtle">{i + 1}</td>
+                        <td className="tabular px-3 py-0.5 text-right font-medium text-fg">
                           {fmt(y[i])}
                         </td>
-                        <td className="tabular px-3 py-0.5 text-right text-zinc-400">
+                        <td className="tabular px-3 py-0.5 text-right text-fgmuted">
                           {fmt(outliers.scores[i], 2)}
                         </td>
                         <td className="px-3 py-0.5">
@@ -297,8 +297,8 @@ export default function StatisticsView({
         >
           <div className="h-full overflow-auto">
             <table className="w-full text-[12px]">
-              <thead className="sticky top-0 bg-zinc-950/95 text-left text-[10px] font-semibold uppercase tracking-wide text-zinc-500 backdrop-blur">
-                <tr className="border-b border-zinc-800">
+              <thead className="sticky top-0 bg-base/95 text-left text-[10px] font-semibold uppercase tracking-wide text-fgsubtle backdrop-blur">
+                <tr className="border-b border-line">
                   <th className="px-4 py-2">Column</th>
                   <th className="px-4 py-2 text-right">N</th>
                   <th className="px-4 py-2 text-right">Mean</th>
@@ -314,34 +314,34 @@ export default function StatisticsView({
                   return (
                     <tr
                       key={column.index}
-                      className={`border-t border-zinc-800/60 ${
-                        active ? "bg-orange-500/[0.06]" : "hover:bg-zinc-800/30"
+                      className={`border-t border-line/60 ${
+                        active ? "bg-orange-500/[0.06]" : "hover:bg-panel2/30"
                       }`}
                     >
-                      <td className="px-4 py-1.5 font-medium text-zinc-200">
+                      <td className="px-4 py-1.5 font-medium text-fg">
                         {column.name}
                         {active && (
-                          <span className="ml-2 text-[9px] font-semibold uppercase text-orange-400">
+                          <span className="ml-2 text-[9px] font-semibold uppercase text-accent">
                             active
                           </span>
                         )}
                       </td>
-                      <td className="tabular px-4 py-1.5 text-right text-zinc-400">
+                      <td className="tabular px-4 py-1.5 text-right text-fgmuted">
                         {s ? fmtInt(s.count) : "—"}
                       </td>
-                      <td className="tabular px-4 py-1.5 text-right text-zinc-200">
+                      <td className="tabular px-4 py-1.5 text-right text-fg">
                         {fmt(s?.mean)}
                       </td>
-                      <td className="tabular px-4 py-1.5 text-right text-zinc-400">
+                      <td className="tabular px-4 py-1.5 text-right text-fgmuted">
                         {fmt(s?.std)}
                       </td>
-                      <td className="tabular px-4 py-1.5 text-right text-zinc-400">
+                      <td className="tabular px-4 py-1.5 text-right text-fgmuted">
                         {fmt(s?.min)}
                       </td>
-                      <td className="tabular px-4 py-1.5 text-right text-zinc-400">
+                      <td className="tabular px-4 py-1.5 text-right text-fgmuted">
                         {fmt(s?.median)}
                       </td>
-                      <td className="tabular px-4 py-1.5 text-right text-zinc-400">
+                      <td className="tabular px-4 py-1.5 text-right text-fgmuted">
                         {fmt(s?.max)}
                       </td>
                     </tr>
@@ -359,14 +359,14 @@ export default function StatisticsView({
 /** Compact key→value sheet rows (label left, value right). */
 function KVList({ rows }: { rows: [string, React.ReactNode][] }) {
   return (
-    <div className="divide-y divide-zinc-800/60">
+    <div className="divide-y divide-line/60">
       {rows.map(([k, v], i) => (
         <div
           key={i}
           className="flex items-center justify-between px-3.5 py-[5px] text-[12px]"
         >
-          <span className="text-zinc-500">{k}</span>
-          <span className="tabular font-medium text-zinc-100">{v}</span>
+          <span className="text-fgsubtle">{k}</span>
+          <span className="tabular font-medium text-fg">{v}</span>
         </div>
       ))}
     </div>

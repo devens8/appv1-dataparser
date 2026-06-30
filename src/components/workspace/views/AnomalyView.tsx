@@ -82,8 +82,8 @@ export default function AnomalyView({
         markLine: {
           symbol: "none",
           silent: true,
-          lineStyle: { color: "#fbbf24", type: "dashed", width: 1.5 },
-          label: { color: "#fbbf24", fontSize: 10, formatter: "shift" },
+          lineStyle: { color: "#d97706", type: "dashed", width: 1.5 },
+          label: { color: "#d97706", fontSize: 10, formatter: "shift" },
           data: cusum.changePoints.map((cp) => ({ xAxis: cp })),
         },
       } as SeriesOption);
@@ -244,21 +244,21 @@ export default function AnomalyView({
         </Panel>
 
         <Panel fill className="col-span-12 lg:col-span-3" title="Summary">
-          <div className="grid grid-cols-2 divide-x divide-y divide-zinc-800/60 border-t border-zinc-800/60">
+          <div className="grid grid-cols-2 divide-x divide-y divide-line/60 border-t border-line/60">
             {summaryItems.map((it) => (
               <div key={it.label} className="px-3.5 py-2">
-                <div className="text-[9px] font-semibold uppercase tracking-wider text-zinc-500">
+                <div className="text-[9px] font-semibold uppercase tracking-wider text-fgsubtle">
                   {it.label}
                 </div>
                 <div
                   className={`tabular mt-0.5 text-sm font-semibold ${
-                    it.accent ?? "text-zinc-100"
+                    it.accent ?? "text-fg"
                   }`}
                 >
                   {it.value}
                 </div>
                 {it.hint && (
-                  <div className="mt-0.5 text-[10px] text-zinc-500">{it.hint}</div>
+                  <div className="mt-0.5 text-[10px] text-fgsubtle">{it.hint}</div>
                 )}
               </div>
             ))}
@@ -275,8 +275,8 @@ export default function AnomalyView({
         >
           <div className="h-full overflow-auto">
             <table className="w-full text-[12px]">
-              <thead className="sticky top-0 bg-zinc-950/95 text-left text-[10px] font-semibold uppercase tracking-wide text-zinc-500 backdrop-blur">
-                <tr className="border-b border-zinc-800">
+              <thead className="sticky top-0 bg-base/95 text-left text-[10px] font-semibold uppercase tracking-wide text-fgsubtle backdrop-blur">
+                <tr className="border-b border-line">
                   <th className="px-3.5 py-1.5">#</th>
                   <th className="px-3.5 py-1.5 text-right">Value</th>
                   <th className="px-3.5 py-1.5 text-right">z</th>
@@ -287,15 +287,15 @@ export default function AnomalyView({
                 {rolling.anomalies.map((a) => (
                   <tr
                     key={a.index}
-                    className="border-t border-zinc-800/60 hover:bg-zinc-800/30"
+                    className="border-t border-line/60 hover:bg-panel2/30"
                   >
-                    <td className="tabular px-3.5 py-1 text-zinc-500">
+                    <td className="tabular px-3.5 py-1 text-fgsubtle">
                       {a.index + 1}
                     </td>
-                    <td className="tabular px-3.5 py-1 text-right font-medium text-zinc-200">
+                    <td className="tabular px-3.5 py-1 text-right font-medium text-fg">
                       {fmt(a.value)}
                     </td>
-                    <td className="tabular px-3.5 py-1 text-right text-zinc-400">
+                    <td className="tabular px-3.5 py-1 text-right text-fgmuted">
                       {fmt(a.score, 2)}
                     </td>
                     <td className="px-3.5 py-1">

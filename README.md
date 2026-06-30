@@ -29,7 +29,10 @@ delivered as a clean, OneDrive-style web app.
     **one-way ANOVA with η² + Bonferroni post-hoc**, pairwise **Welch t-test or
     Mann–Whitney U** (toggle), and per-group **D'Agostino–Pearson normality**
   - **Longitudinal** — track a variable's mean across datasets over time
-  - **Data** — spreadsheet view with column-type badges
+  - **Data** — spreadsheet view with column-type badges and **derived columns
+    (F(x))**: one-click transforms (log/ln, z-score, min–max, Δ, % change, …)
+    or a free-form expression with `{column}` references
+    (e.g. `log10({dose})`, `{signal} / {baseline}`)
   - Outlier detection (IQR / Z-score / MAD) feeds Charts, Statistics & Anomalies
 
 ## Stack

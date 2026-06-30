@@ -138,7 +138,7 @@ export default function LongitudinalView({
         name: "Trend",
         data: points.map((_, i) => trend.predict(i)),
         showSymbol: false,
-        lineStyle: { color: "#fbbf24", width: 2, type: "dashed" },
+        lineStyle: { color: "#d97706", width: 2, type: "dashed" },
         z: 2,
       });
     }
@@ -171,11 +171,11 @@ export default function LongitudinalView({
 
   if (workspace.datasets.length < 2) {
     return (
-      <div className="grid-bg flex flex-col items-center justify-center rounded-sm border border-dashed border-zinc-700 bg-zinc-900/30 py-20 text-center">
-        <h3 className="text-sm font-semibold text-zinc-200">
+      <div className="grid-bg flex flex-col items-center justify-center rounded-sm border border-dashed border-line bg-panel/30 py-20 text-center">
+        <h3 className="text-sm font-semibold text-fg">
           Longitudinal tracking needs a history
         </h3>
-        <p className="mt-1 max-w-sm text-sm text-zinc-400">
+        <p className="mt-1 max-w-sm text-sm text-fgmuted">
           Import datasets over time. Each dataset becomes one time point, and
           this view tracks how a variable&apos;s mean shifts across them.
         </p>
@@ -216,7 +216,7 @@ export default function LongitudinalView({
             cols="grid-cols-2 sm:grid-cols-4"
             items={[
               { label: "Start", value: fmt(first) },
-              { label: "Latest", value: fmt(last), accent: "text-orange-300" },
+              { label: "Latest", value: fmt(last), accent: "text-accent" },
               {
                 label: "Total Δ",
                 value: fmt(totalChange),
@@ -225,7 +225,7 @@ export default function LongitudinalView({
                     ? "text-emerald-300"
                     : totalChange < 0
                       ? "text-rose-300"
-                      : "text-zinc-100",
+                      : "text-fg",
               },
               { label: "% change", value: `${fmt(pctChange, 1)}%` },
               {
@@ -246,8 +246,8 @@ export default function LongitudinalView({
         <Panel title="Time points" subtitle="Per-dataset summary in order">
           <div className="max-h-72 overflow-auto">
             <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-zinc-900/95 text-left text-[11px] font-semibold uppercase tracking-wide text-zinc-500 backdrop-blur">
-                <tr className="border-b border-zinc-800">
+              <thead className="sticky top-0 bg-panel/95 text-left text-[11px] font-semibold uppercase tracking-wide text-fgsubtle backdrop-blur">
+                <tr className="border-b border-line">
                   <th className="px-5 py-2">#</th>
                   <th className="px-5 py-2">Dataset</th>
                   <th className="px-5 py-2">Added</th>
@@ -260,24 +260,24 @@ export default function LongitudinalView({
                 {points.map((p, i) => (
                   <tr
                     key={p.id}
-                    className="border-t border-zinc-800/60 hover:bg-zinc-800/30"
+                    className="border-t border-line/60 hover:bg-panel2/30"
                   >
-                    <td className="tabular px-5 py-1.5 text-zinc-500">
+                    <td className="tabular px-5 py-1.5 text-fgsubtle">
                       {i + 1}
                     </td>
-                    <td className="px-5 py-1.5 font-medium text-zinc-200">
+                    <td className="px-5 py-1.5 font-medium text-fg">
                       {p.name}
                     </td>
-                    <td className="px-5 py-1.5 text-zinc-400">
+                    <td className="px-5 py-1.5 text-fgmuted">
                       {shortDate(p.createdAt)}
                     </td>
-                    <td className="tabular px-5 py-1.5 text-right text-zinc-400">
+                    <td className="tabular px-5 py-1.5 text-right text-fgmuted">
                       {fmtInt(p.count)}
                     </td>
-                    <td className="tabular px-5 py-1.5 text-right font-medium text-orange-300">
+                    <td className="tabular px-5 py-1.5 text-right font-medium text-accent">
                       {fmt(p.mean)}
                     </td>
-                    <td className="tabular px-5 py-1.5 text-right text-zinc-400">
+                    <td className="tabular px-5 py-1.5 text-right text-fgmuted">
                       {fmt(p.sem)}
                     </td>
                   </tr>

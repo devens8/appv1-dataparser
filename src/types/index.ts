@@ -4,6 +4,10 @@ export interface Column {
   name: string;
   type: ColumnType;
   index: number;
+  /** True when this column was derived (transform or formula), not imported. */
+  computed?: boolean;
+  /** The transform id or formula expression used to derive it. */
+  formula?: string;
 }
 
 export type CellValue = number | string | null;

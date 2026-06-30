@@ -136,15 +136,15 @@ export default function WorkspacePage() {
     return (
       <Shell>
         <div className="flex h-full flex-col items-center justify-center text-center">
-          <h2 className="text-lg font-semibold text-zinc-100">
+          <h2 className="text-lg font-semibold text-fg">
             Workspace not found
           </h2>
-          <p className="mt-1 text-sm text-zinc-400">
+          <p className="mt-1 text-sm text-fgmuted">
             It may have been deleted.
           </p>
           <Link
             href="/"
-            className="mt-4 rounded-sm bg-orange-500/90 px-4 py-2 text-sm font-medium text-white hover:bg-orange-400"
+            className="mt-4 rounded-sm border border-orange-500/40 bg-orange-500/15 px-4 py-2 text-sm font-medium text-accent hover:bg-orange-500/25"
           >
             Back to workspaces
           </Link>
@@ -161,25 +161,25 @@ export default function WorkspacePage() {
     <Shell>
       <div className="flex h-full flex-col">
         {/* Header */}
-        <header className="relative border-b border-zinc-800/80 bg-zinc-950/40 px-6 pt-4">
-          <nav className="flex items-center gap-1.5 text-xs text-zinc-500">
-            <Link href="/" className="hover:text-zinc-300">
+        <header className="relative border-b border-line/80 bg-base/40 px-6 pt-4">
+          <nav className="flex items-center gap-1.5 text-xs text-fgsubtle">
+            <Link href="/" className="hover:text-fgmuted">
               Workspaces
             </Link>
             <span>/</span>
-            <span className="text-zinc-300">{workspace.name}</span>
+            <span className="text-fgmuted">{workspace.name}</span>
           </nav>
           <div className="mt-1.5 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <span
-                className={`h-7 w-1.5 rounded-full ${a.bg} shadow-[0_0_12px_currentColor]`}
+                className={`h-7 w-1.5 rounded-full ${a.bg}`}
               />
               <div>
-                <h1 className="text-lg font-semibold tracking-tight text-zinc-50">
+                <h1 className="text-lg font-semibold tracking-tight text-fg">
                   {workspace.name}
                 </h1>
                 {workspace.description && (
-                  <p className="text-sm text-zinc-400">
+                  <p className="text-sm text-fgmuted">
                     {workspace.description}
                   </p>
                 )}
@@ -190,7 +190,7 @@ export default function WorkspacePage() {
                 <div className="relative">
                   <button
                     onClick={() => setAnalyzeOpen((o) => !o)}
-                    className="flex items-center gap-2 rounded-sm border border-zinc-700 bg-zinc-900/70 px-3.5 py-2 text-sm font-medium text-zinc-200 transition-colors hover:border-orange-500/60 hover:text-orange-300"
+                    className="flex items-center gap-2 rounded-sm border border-line bg-panel/70 px-3.5 py-2 text-sm font-medium text-fg transition-colors hover:border-orange-500/60 hover:text-accent"
                   >
                     <IconMenu className="h-4 w-4" width={16} height={16} />
                     Analyze
@@ -207,7 +207,7 @@ export default function WorkspacePage() {
                           if (!items.length) return null;
                           return (
                             <div key={g} className="mb-1.5 last:mb-0">
-                              <div className="px-2 pb-1 pt-1.5 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+                              <div className="px-2 pb-1 pt-1.5 text-[10px] font-semibold uppercase tracking-wider text-fgsubtle">
                                 {g}
                               </div>
                               {items.map((t) => (
@@ -219,12 +219,12 @@ export default function WorkspacePage() {
                                   }}
                                   className={`flex w-full items-start gap-2.5 rounded-sm px-2 py-1.5 text-left transition-colors ${
                                     tab === t.id
-                                      ? "bg-orange-500/10 text-orange-200"
-                                      : "text-zinc-300 hover:bg-zinc-800/60"
+                                      ? "bg-orange-500/10 text-accent"
+                                      : "text-fgmuted hover:bg-panel2/60"
                                   }`}
                                 >
                                   <t.icon
-                                    className="mt-0.5 h-4 w-4 shrink-0 text-zinc-400"
+                                    className="mt-0.5 h-4 w-4 shrink-0 text-fgmuted"
                                     width={16}
                                     height={16}
                                   />
@@ -232,7 +232,7 @@ export default function WorkspacePage() {
                                     <span className="block text-sm font-medium">
                                       {t.label}
                                     </span>
-                                    <span className="block text-[11px] leading-tight text-zinc-500">
+                                    <span className="block text-[11px] leading-tight text-fgsubtle">
                                       {t.blurb}
                                     </span>
                                   </span>
@@ -261,13 +261,13 @@ export default function WorkspacePage() {
                     onClick={() => setActiveDataset(workspace.id, d.id)}
                     className={`group flex shrink-0 cursor-pointer items-center gap-2 rounded-sm border px-3 py-1.5 text-sm transition-colors ${
                       isActive
-                        ? "border-orange-500/40 bg-orange-500/10 text-orange-200"
-                        : "border-zinc-800 bg-zinc-900/50 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
+                        ? "border-orange-500/40 bg-orange-500/10 text-accent"
+                        : "border-line bg-panel/50 text-fgmuted hover:border-line hover:text-fg"
                     }`}
                   >
                     <IconTable className="h-3.5 w-3.5" width={14} height={14} />
                     <span className="max-w-[160px] truncate">{d.name}</span>
-                    <span className="tabular text-[10px] text-zinc-500">
+                    <span className="tabular text-[10px] text-fgsubtle">
                       {d.rows.length}×{d.columns.length}
                     </span>
                     {canDelete && (
@@ -277,7 +277,7 @@ export default function WorkspacePage() {
                           if (confirm(`Remove dataset "${d.name}"?`))
                             removeDataset(workspace.id, d.id);
                         }}
-                        className="rounded p-0.5 text-zinc-600 opacity-0 hover:bg-rose-500/10 hover:text-rose-400 group-hover:opacity-100"
+                        className="rounded p-0.5 text-fgsubtle opacity-0 hover:bg-rose-500/10 hover:text-rose-400 group-hover:opacity-100"
                       >
                         <IconClose className="h-3 w-3" width={12} height={12} />
                       </button>
@@ -299,8 +299,8 @@ export default function WorkspacePage() {
                     onClick={() => setTab(t.id)}
                     className={`relative flex shrink-0 items-center gap-2 px-3.5 py-2.5 text-sm font-medium transition-colors ${
                       isActive
-                        ? "text-orange-300"
-                        : "text-zinc-500 hover:text-zinc-300"
+                        ? "text-accent"
+                        : "text-fgsubtle hover:text-fgmuted"
                     }`}
                   >
                     <t.icon className="h-4 w-4" width={16} height={16} />
@@ -317,8 +317,8 @@ export default function WorkspacePage() {
 
         {/* Global analysis selector — choose data once, shown everywhere */}
         {activeDataset && hasNumeric && analysis && SINGLE_DATASET_TABS.includes(tab) && (
-          <div className="flex flex-wrap items-end gap-4 border-b border-zinc-800/80 bg-zinc-900/30 px-6 py-2.5">
-            <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+          <div className="flex flex-wrap items-end gap-4 border-b border-line/80 bg-panel/30 px-6 py-2.5">
+            <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wider text-fgsubtle">
               <span className="h-1.5 w-1.5 animate-glow-pulse rounded-full bg-orange-400" />
               Analyzing
             </div>
@@ -379,7 +379,11 @@ export default function WorkspacePage() {
                 <StatisticsView dataset={activeDataset} analysis={analysis} />
               )}
               {tab === "data" && analysis && (
-                <DataView dataset={activeDataset} analysis={analysis} />
+                <DataView
+                  dataset={activeDataset}
+                  analysis={analysis}
+                  workspaceId={workspace.id}
+                />
               )}
               {tab === "anomaly" && analysis && (
                 <AnomalyView dataset={activeDataset} analysis={analysis} />

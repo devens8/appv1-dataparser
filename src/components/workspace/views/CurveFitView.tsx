@@ -106,7 +106,7 @@ export default function CurveFitView({
       data: curve,
       showSymbol: false,
       smooth: true,
-      lineStyle: { color: "#fbbf24", width: 2.5 },
+      lineStyle: { color: "#d97706", width: 2.5 },
       z: 4,
     } as SeriesOption);
 
@@ -195,7 +195,7 @@ export default function CurveFitView({
           </option>
         ))}
       </Select>
-      <label className="flex items-center gap-1.5 text-[11px] font-medium text-zinc-400">
+      <label className="flex items-center gap-1.5 text-[11px] font-medium text-fgmuted">
         <input
           type="checkbox"
           checked={showBand}
@@ -223,7 +223,7 @@ export default function CurveFitView({
             {fitChart ? (
               <Chart option={fitChart} height="100%" />
             ) : (
-              <div className="flex h-full items-center justify-center text-center text-sm text-zinc-500">
+              <div className="flex h-full items-center justify-center text-center text-sm text-fgsubtle">
                 Not enough points to fit this model (need ≥{" "}
                 {model.params.length + 1}).
               </div>
@@ -254,9 +254,9 @@ export default function CurveFitView({
                 </Badge>
               }
             >
-              <div className="grid grid-cols-2 divide-x divide-y divide-zinc-800/60 border-t border-zinc-800/60">
+              <div className="grid grid-cols-2 divide-x divide-y divide-line/60 border-t border-line/60">
                 {[
-                  { label: "R²", value: fmt(fit.r2, 4), accent: "text-orange-300" },
+                  { label: "R²", value: fmt(fit.r2, 4), accent: "text-accent" },
                   { label: "Adjusted R²", value: fmt(fit.adjR2, 4) },
                   { label: "RMSE (σ)", value: fmt(fit.rmse) },
                   { label: "SSE", value: fmt(fit.sse) },
@@ -264,12 +264,12 @@ export default function CurveFitView({
                   { label: "DOF", value: fmtInt(fit.dof) },
                 ].map((it) => (
                   <div key={it.label} className="px-3.5 py-1.5">
-                    <div className="text-[9px] font-semibold uppercase tracking-wider text-zinc-500">
+                    <div className="text-[9px] font-semibold uppercase tracking-wider text-fgsubtle">
                       {it.label}
                     </div>
                     <div
                       className={`tabular mt-0.5 text-sm font-semibold ${
-                        it.accent ?? "text-zinc-100"
+                        it.accent ?? "text-fg"
                       }`}
                     >
                       {it.value}
@@ -288,8 +288,8 @@ export default function CurveFitView({
           <Panel title="Fitted parameters" subtitle="Estimate ± SE (95% CI)">
             <div className="overflow-x-auto">
               <table className="w-full text-[12px]">
-                <thead className="text-left text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
-                  <tr className="border-b border-zinc-800">
+                <thead className="text-left text-[10px] font-semibold uppercase tracking-wide text-fgsubtle">
+                  <tr className="border-b border-line">
                     <th className="px-3.5 py-1.5">Param</th>
                     <th className="px-3.5 py-1.5 text-right">Estimate</th>
                     <th className="px-3.5 py-1.5 text-right">± SE</th>
@@ -297,14 +297,14 @@ export default function CurveFitView({
                 </thead>
                 <tbody>
                   {fit.params.map((p) => (
-                    <tr key={p.name} className="border-t border-zinc-800/60">
-                      <td className="px-3.5 py-1 font-medium text-zinc-200">
+                    <tr key={p.name} className="border-t border-line/60">
+                      <td className="px-3.5 py-1 font-medium text-fg">
                         {p.name}
                       </td>
-                      <td className="tabular px-3.5 py-1 text-right font-medium text-orange-300">
+                      <td className="tabular px-3.5 py-1 text-right font-medium text-accent">
                         {fmt(p.value)}
                       </td>
-                      <td className="tabular px-3.5 py-1 text-right text-zinc-400">
+                      <td className="tabular px-3.5 py-1 text-right text-fgmuted">
                         {isNaN(p.se) ? "—" : fmt(p.se)}
                       </td>
                     </tr>
@@ -316,10 +316,10 @@ export default function CurveFitView({
 
           {fit.derived.length > 0 && (
             <Panel title="Derived quantities">
-              <div className="grid grid-cols-2 divide-x divide-y divide-zinc-800/60 border-t border-zinc-800/60">
+              <div className="grid grid-cols-2 divide-x divide-y divide-line/60 border-t border-line/60">
                 {fit.derived.map((d) => (
                   <div key={d.label} className="px-3.5 py-1.5">
-                    <div className="text-[9px] font-semibold uppercase tracking-wider text-zinc-500">
+                    <div className="text-[9px] font-semibold uppercase tracking-wider text-fgsubtle">
                       {d.label}
                     </div>
                     <div className="tabular mt-0.5 text-sm font-semibold text-amber-300">
@@ -334,8 +334,8 @@ export default function CurveFitView({
           <Panel fill title="Model comparison" subtitle="Ranked by adjusted R²">
             <div className="h-full overflow-auto">
               <table className="w-full text-[12px]">
-                <thead className="sticky top-0 bg-zinc-950/95 text-left text-[10px] font-semibold uppercase tracking-wide text-zinc-500 backdrop-blur">
-                  <tr className="border-b border-zinc-800">
+                <thead className="sticky top-0 bg-base/95 text-left text-[10px] font-semibold uppercase tracking-wide text-fgsubtle backdrop-blur">
+                  <tr className="border-b border-line">
                     <th className="px-3.5 py-1.5">Model</th>
                     <th className="px-3.5 py-1.5 text-right">R²</th>
                     <th className="px-3.5 py-1.5 text-right">Adj</th>
@@ -348,17 +348,17 @@ export default function CurveFitView({
                       <tr
                         key={r.model.id}
                         onClick={() => setModelId(r.model.id)}
-                        className={`cursor-pointer border-t border-zinc-800/60 ${
-                          active ? "bg-orange-500/[0.07]" : "hover:bg-zinc-800/30"
+                        className={`cursor-pointer border-t border-line/60 ${
+                          active ? "bg-orange-500/[0.07]" : "hover:bg-panel2/30"
                         }`}
                       >
-                        <td className="px-3.5 py-1 font-medium text-zinc-200">
+                        <td className="px-3.5 py-1 font-medium text-fg">
                           {r.model.name}
                         </td>
-                        <td className="tabular px-3.5 py-1 text-right text-zinc-300">
+                        <td className="tabular px-3.5 py-1 text-right text-fgmuted">
                           {fmt(r.fit!.r2, 3)}
                         </td>
-                        <td className="tabular px-3.5 py-1 text-right font-medium text-orange-300">
+                        <td className="tabular px-3.5 py-1 text-right font-medium text-accent">
                           {fmt(r.fit!.adjR2, 3)}
                         </td>
                       </tr>

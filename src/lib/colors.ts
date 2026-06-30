@@ -19,7 +19,7 @@ const MAP: Record<string, AccentClasses> = {
   indigo: {
     bg: "bg-orange-500",
     bgSoft: "bg-orange-500/10",
-    text: "text-orange-300",
+    text: "text-accent",
     ring: "ring-orange-500/30",
     gradient: "from-orange-500 to-amber-400",
   },
@@ -33,7 +33,7 @@ const MAP: Record<string, AccentClasses> = {
   emerald: {
     bg: "bg-orange-400",
     bgSoft: "bg-orange-400/10",
-    text: "text-orange-200",
+    text: "text-accent",
     ring: "ring-orange-400/30",
     gradient: "from-orange-400 to-yellow-400",
   },
@@ -54,7 +54,7 @@ const MAP: Record<string, AccentClasses> = {
   violet: {
     bg: "bg-orange-600",
     bgSoft: "bg-orange-600/10",
-    text: "text-orange-300",
+    text: "text-accent",
     ring: "ring-orange-600/30",
     gradient: "from-orange-600 to-amber-500",
   },

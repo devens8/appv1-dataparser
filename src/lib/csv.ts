@@ -128,13 +128,28 @@ export function parseCSV(text: string): ParsedCsv {
     return r.slice(0, colCount);
   });
 
-  const columns: Column[] = headers.map((name, index) => {
-    const colValues = dataRows.map((r) => r[index] ?? "");
-    return { name, index, type: inferType(colValues) };
+  // Drop columns that carry no data at all (trailing delimiters, blank spacer
+  // columns) — a header with an empty body shouldn't count as a column.
+  const hasData = headers.map((_, i) =>
+    dataRows.some((r) => r[i] != null && String(r[i]).trim() !== ""),
+  );
+  const keep =
+    dataRows.length === 0
+      ? headers.map((_, i) => i)
+      : headers.map((_, i) => i).filter((i) => hasData[i]);
+
+  const columns: Column[] = keep.map((srcIndex, newIndex) => {
+    const colValues = dataRows.map((r) => r[srcIndex] ?? "");
+    return {
+      name: headers[srcIndex],
+      index: newIndex,
+      type: inferType(colValues),
+    };
   });
 
   const rows: CellValue[][] = dataRows.map((r) =>
-    r.map((cell, ci) => {
+    keep.map((srcIndex, ci) => {
+      const cell = r[srcIndex];
       if (cell === "" || cell == null) return null;
       return columns[ci].type === "number" && isNumeric(cell)
         ? Number(cell)

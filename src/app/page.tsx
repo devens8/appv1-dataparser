@@ -2,29 +2,57 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Sidebar from "@/components/Sidebar";
 import NewWorkspaceModal from "@/components/NewWorkspaceModal";
 import AiInsights from "@/components/AiInsights";
 import { useWorkspaceStore } from "@/store/workspaces";
-import { accent } from "@/lib/colors";
-import { relativeTime } from "@/lib/format";
+import { useUiStore } from "@/store/ui";
 import {
-  IconGrid,
-  IconLayers,
+  IconChart,
+  IconCurve,
+  IconLogo,
+  IconMoon,
   IconPlus,
+  IconPulse,
+  IconSigma,
+  IconSun,
   IconTable,
-  IconTrash,
 } from "@/components/icons";
+
+const AUDIENCE = [
+  "Lab researchers",
+  "Bench & bio scientists",
+  "Bioinformaticians",
+  "Engineers & analysts",
+  "Students",
+];
+
+const CAPABILITIES = [
+  { icon: IconChart, label: "Visualize", desc: "Scatter, line, box & correlation" },
+  { icon: IconCurve, label: "Curve fit", desc: "Dose–response, kinetics, growth" },
+  { icon: IconSigma, label: "Statistics", desc: "ANOVA, t-tests, normality" },
+  { icon: IconPulse, label: "Detect", desc: "Outliers & change-points" },
+  { icon: IconTable, label: "Transform", desc: "Derived columns · f(x)" },
+];
+
+function ThemeToggle() {
+  const theme = useUiStore((s) => s.theme);
+  const toggleTheme = useUiStore((s) => s.toggleTheme);
+  const Icon = theme === "dark" ? IconSun : IconMoon;
+  return (
+    <button
+      onClick={toggleTheme}
+      title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+      className="flex h-9 w-9 items-center justify-center rounded-sm border border-line bg-panel/60 text-fgmuted transition-colors hover:border-orange-500/50 hover:text-accent"
+    >
+      <Icon className="h-4 w-4" width={16} height={16} />
+    </button>
+  );
+}
 
 export default function HomePage() {
   const router = useRouter();
-  const workspaces = useWorkspaceStore((s) => s.workspaces);
-  const hydrated = useWorkspaceStore((s) => s.hydrated);
   const createWorkspace = useWorkspaceStore((s) => s.createWorkspace);
-  const deleteWorkspace = useWorkspaceStore((s) => s.deleteWorkspace);
   const [modalOpen, setModalOpen] = useState(false);
-
-  const sorted = [...workspaces].sort((a, b) => b.updatedAt - a.updatedAt);
 
   const handleCreate = (name: string, description: string) => {
     const id = createWorkspace(name, description);
@@ -33,154 +61,102 @@ export default function HomePage() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <Sidebar />
-
-      <main className="flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-6xl px-8 py-10">
-          <header className="animate-fade-in-up flex items-end justify-between">
-            <div>
-              <h1 className="text-2xl font-semibold tracking-tight text-zinc-50">
-                Workspaces
-              </h1>
-              <p className="mt-1 text-sm text-zinc-400">
-                Organise datasets and analyses. Open a workspace to import data
-                and run tools.
-              </p>
+    <main className="min-h-screen overflow-y-auto">
+      {/* Top bar */}
+      <div className="sticky top-0 z-20 border-b border-line bg-base/80 backdrop-blur">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-orange-500/15 text-accent ring-1 ring-inset ring-orange-500/40">
+              <IconLogo className="h-4.5 w-4.5" width={18} height={18} />
             </div>
+            <div className="leading-tight">
+              <div className="text-sm font-semibold tracking-tight text-fg">
+                Strata
+              </div>
+              <div className="text-[10px] font-medium uppercase tracking-wider text-fgsubtle">
+                Scientific Data Workspace
+              </div>
+            </div>
+          </div>
+          <ThemeToggle />
+        </div>
+      </div>
+
+      <div className="mx-auto max-w-5xl px-6 pb-24">
+        {/* Hero */}
+        <header className="animate-fade-in-up pt-14 text-center">
+          <span className="inline-flex items-center gap-2 rounded-sm border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-[11px] font-medium uppercase tracking-wider text-accent">
+            Analysis · graphing · statistics
+          </span>
+          <h1 className="mt-6 text-4xl font-semibold tracking-tight text-fg sm:text-5xl">
+            Turn raw lab data into
+            <span className="text-accent"> publication-grade</span> insight
+          </h1>
+          <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-fgmuted">
+            Import a CSV and get descriptive statistics, nonlinear curve fits
+            (EC50 / kinetics), ANOVA &amp; t-tests, anomaly detection and
+            publication-ready charts — no installs, no coding.
+          </p>
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+            {AUDIENCE.map((a) => (
+              <span
+                key={a}
+                className="rounded-sm border border-line bg-panel/50 px-2.5 py-1 text-xs text-fgmuted"
+              >
+                {a}
+              </span>
+            ))}
+          </div>
+        </header>
+
+        {/* Drop a file → straight into a new workspace */}
+        <section className="mt-10">
+          <div className="mb-2 flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-fg">
+              Start here — drop a file
+            </h2>
             <button
               onClick={() => setModalOpen(true)}
-              className="flex items-center gap-2 rounded-sm bg-orange-500/90 px-4 py-2.5 text-sm font-medium text-white shadow-[0_0_24px_-8px_rgba(249,115,22,0.9)] transition-all hover:bg-orange-400"
+              className="flex items-center gap-2 rounded-sm border border-line bg-panel/60 px-3 py-1.5 text-xs font-medium text-fgmuted transition-colors hover:border-orange-500/50 hover:text-accent"
             >
-              <IconPlus className="h-4 w-4" width={16} height={16} />
-              New workspace
+              <IconPlus className="h-3.5 w-3.5" width={14} height={14} />
+              Or create an empty workspace
             </button>
-          </header>
-
-          <div className="mt-6">
-            <AiInsights />
           </div>
+          <AiInsights autoOpen />
+          <p className="mt-2 text-center text-[11px] text-fgsubtle">
+            Your file is profiled in the browser and opens straight into a new
+            workspace — ready to chart, fit and test.
+          </p>
+        </section>
 
-          <div className="mt-10 mb-3 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
-            Your workspaces
-          </div>
-
-          {!hydrated ? (
-            <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {[0, 1, 2].map((i) => (
-                <div key={i} className="skeleton h-44 rounded-sm" />
-              ))}
-            </div>
-          ) : sorted.length === 0 ? (
-            <EmptyState onCreate={() => setModalOpen(true)} />
-          ) : (
-            <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              <button
-                onClick={() => setModalOpen(true)}
-                className="group flex min-h-44 flex-col items-center justify-center gap-3 rounded-sm border border-dashed border-zinc-700 bg-zinc-900/30 text-zinc-500 transition-colors hover:border-orange-500/60 hover:bg-orange-500/5 hover:text-orange-300"
-              >
-                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-zinc-800/60 transition-colors group-hover:bg-orange-500/15">
-                  <IconPlus className="h-5 w-5" width={20} height={20} />
+        {/* Capabilities */}
+        <section className="mt-12">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+            {CAPABILITIES.map((c) => (
+              <div key={c.label} className="surface rounded-sm p-3.5 text-center">
+                <c.icon
+                  className="mx-auto h-5 w-5 text-accent"
+                  width={20}
+                  height={20}
+                />
+                <div className="mt-2 text-sm font-semibold text-fg">
+                  {c.label}
                 </div>
-                <span className="text-sm font-medium">New workspace</span>
-              </button>
-
-              {sorted.map((w, i) => {
-                const a = accent(w.color);
-                return (
-                  <div
-                    key={w.id}
-                    onClick={() => router.push(`/workspace/${w.id}`)}
-                    style={{ animationDelay: `${Math.min(i, 8) * 40}ms` }}
-                    className="surface group animate-fade-in-up relative cursor-pointer overflow-hidden rounded-sm transition-all hover:-translate-y-0.5 hover:border-zinc-700 hover:shadow-glow"
-                  >
-                    <div className={`h-1 bg-gradient-to-r ${a.gradient}`} />
-                    <div className="p-5">
-                      <div className="flex items-start justify-between">
-                        <div
-                          className={`flex h-10 w-10 items-center justify-center rounded-sm ring-1 ring-inset ${a.bgSoft} ${a.text} ${a.ring}`}
-                        >
-                          <IconTable
-                            className="h-5 w-5"
-                            width={20}
-                            height={20}
-                          />
-                        </div>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (confirm(`Delete workspace "${w.name}"?`))
-                              deleteWorkspace(w.id);
-                          }}
-                          className="rounded-sm p-1.5 text-zinc-600 opacity-0 transition-all hover:bg-rose-500/10 hover:text-rose-400 group-hover:opacity-100"
-                          aria-label="Delete workspace"
-                        >
-                          <IconTrash
-                            className="h-4 w-4"
-                            width={16}
-                            height={16}
-                          />
-                        </button>
-                      </div>
-
-                      <h3 className="mt-4 truncate font-semibold text-zinc-100">
-                        {w.name}
-                      </h3>
-                      <p className="mt-1 line-clamp-2 h-9 text-sm text-zinc-400">
-                        {w.description || "No description"}
-                      </p>
-
-                      <div className="mt-4 flex items-center gap-3 text-xs text-zinc-500">
-                        <span className="flex items-center gap-1.5">
-                          <IconLayers
-                            className="h-3.5 w-3.5"
-                            width={14}
-                            height={14}
-                          />
-                          {w.datasets.length}{" "}
-                          {w.datasets.length === 1 ? "dataset" : "datasets"}
-                        </span>
-                        <span>·</span>
-                        <span>{relativeTime(w.updatedAt)}</span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      </main>
+                <div className="mt-0.5 text-[11px] leading-tight text-fgsubtle">
+                  {c.desc}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
 
       <NewWorkspaceModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         onCreate={handleCreate}
       />
-    </div>
-  );
-}
-
-function EmptyState({ onCreate }: { onCreate: () => void }) {
-  return (
-    <div className="grid-bg animate-fade-in-up mt-10 flex flex-col items-center justify-center rounded-sm border border-dashed border-zinc-700 bg-zinc-900/30 py-20 text-center">
-      <div className="flex h-14 w-14 items-center justify-center rounded-sm bg-orange-500/10 text-orange-300 ring-1 ring-inset ring-orange-500/30">
-        <IconGrid className="h-7 w-7" width={28} height={28} />
-      </div>
-      <h2 className="mt-5 text-lg font-semibold text-zinc-100">
-        Create your first workspace
-      </h2>
-      <p className="mt-1 max-w-sm text-sm text-zinc-400">
-        Workspaces keep your experiments organised. Add a CSV, then explore
-        statistics, outliers, trends and visualizations.
-      </p>
-      <button
-        onClick={onCreate}
-        className="mt-6 flex items-center gap-2 rounded-sm bg-orange-500/90 px-5 py-2.5 text-sm font-medium text-white shadow-[0_0_24px_-8px_rgba(249,115,22,0.9)] transition-all hover:bg-orange-400"
-      >
-        <IconPlus className="h-4 w-4" width={16} height={16} />
-        New workspace
-      </button>
-    </div>
+    </main>
   );
 }

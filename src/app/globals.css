@@ -2,12 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #000000;
-  --panel: #0b0b0d;
-  --border: #27272a;
-  --foreground: #e4e4e7;
-  --accent: #f97316;
+/* Semantic color channels (space-separated RGB so Tailwind /opacity works). */
+:root,
+.dark {
+  --c-base: 0 0 0;
+  --c-panel: 11 11 13;
+  --c-panel2: 39 39 42;
+  --c-line: 39 39 42;
+  --c-fg: 244 244 245;
+  --c-fgmuted: 161 161 170;
+  --c-fgsubtle: 113 113 122;
+  --c-accent: 253 186 116; /* orange-300 */
+  --grid-line: 255 255 255;
+  --glow-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.04) inset,
+    0 14px 34px -18px rgba(0, 0, 0, 0.9), 0 2px 8px -4px rgba(0, 0, 0, 0.7);
+}
+
+.light {
+  --c-base: 255 255 255;
+  --c-panel: 255 255 255;
+  --c-panel2: 244 244 245; /* zinc-100 */
+  --c-line: 212 212 216; /* zinc-300 */
+  --c-fg: 24 24 27; /* zinc-900 */
+  --c-fgmuted: 82 82 91; /* zinc-600 */
+  --c-fgsubtle: 113 113 122; /* zinc-500 */
+  --c-accent: 194 65 12; /* orange-700 */
+  --grid-line: 0 0 0;
+  --glow-shadow: 0 1px 2px rgba(0, 0, 0, 0.04),
+    0 12px 28px -16px rgba(0, 0, 0, 0.18);
 }
 
 html {
@@ -16,26 +38,27 @@ html {
 }
 
 body {
-  background-color: var(--background);
-  /* A single, restrained warm glow — scientific and static, not floaty. */
+  background-color: rgb(var(--c-base));
+  color: rgb(var(--c-fg));
+  -webkit-font-smoothing: antialiased;
+}
+
+/* A restrained warm glow — only in dark mode (light stays clean paper-white). */
+.dark body {
   background-image: radial-gradient(
     1100px circle at 0% -10%,
     rgba(249, 115, 22, 0.06),
     transparent 40%
   );
   background-attachment: fixed;
-  color: var(--foreground);
-  -webkit-font-smoothing: antialiased;
 }
 
-/* Numeric / data values read better in a mono face */
 .tabular {
   font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas,
     "Liberation Mono", monospace;
   font-variant-numeric: tabular-nums;
 }
 
-/* Crisp, slightly warm dark scrollbars */
 ::-webkit-scrollbar {
   width: 9px;
   height: 9px;
@@ -57,23 +80,22 @@ body {
 /* Thin hairline grid for canvas / drop / spreadsheet areas */
 .grid-bg {
   background-image: linear-gradient(
-      rgba(255, 255, 255, 0.035) 1px,
+      rgb(var(--grid-line) / 0.035) 1px,
       transparent 1px
     ),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+    linear-gradient(90deg, rgb(var(--grid-line) / 0.035) 1px, transparent 1px);
   background-size: 24px 24px;
 }
 
-/* Panel surface — flat near-black with a hard 1px frame (boxed, static). */
+/* Panel surface — flat with a hard 1px frame (boxed, static). */
 .surface {
-  background-color: var(--panel);
-  border: 1px solid var(--border);
+  background-color: rgb(var(--c-panel));
+  border: 1px solid rgb(var(--c-line));
 }
 
-/* Modern lift — a defined drop shadow plus a faint top highlight. */
+/* Modern lift. */
 .glow {
-  box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.04) inset,
-    0 14px 34px -18px rgba(0, 0, 0, 0.9), 0 2px 8px -4px rgba(0, 0, 0, 0.7);
+  box-shadow: var(--glow-shadow);
 }
 
 /* A glowing accent hairline (under headers / active tabs) */
@@ -91,7 +113,7 @@ body {
 .skeleton {
   position: relative;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgb(var(--grid-line) / 0.06);
 }
 .skeleton::after {
   content: "";
